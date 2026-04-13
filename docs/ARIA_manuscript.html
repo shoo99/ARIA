@@ -10,7 +10,6 @@
     ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
     */
     html {
-      font-family: sans-serif;
       color: #1a1a1a;
       background-color: #fdfdfd;
     }
@@ -438,76 +437,145 @@ time.</li>
 <h2 id="results">3. Results</h2>
 <h3 id="benchmark-performance-overview">3.1 Benchmark Performance
 Overview</h3>
-<p><strong>Table 1. Complete benchmark results</strong></p>
-<table style="width:100%;">
+<p><strong>Table 1a. Benchmark datasets and differential expression
+results</strong></p>
+<table>
 <colgroup>
-<col style="width: 8%" />
-<col style="width: 12%" />
-<col style="width: 12%" />
-<col style="width: 15%" />
-<col style="width: 9%" />
-<col style="width: 6%" />
-<col style="width: 9%" />
-<col style="width: 14%" />
-<col style="width: 7%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
 </colgroup>
 <thead>
 <tr>
-<th>Dataset</th>
-<th>Genes Tested</th>
-<th>DEGs (LFC&gt;1)</th>
-<th>DEGs (LFC&gt;0.5)</th>
-<th>Hallmark</th>
-<th>GO:BP</th>
-<th>Reactome</th>
-<th>Known Targets</th>
-<th>Key DP</th>
+<th></th>
+<th>SEQC</th>
+<th>Airway</th>
+<th>Fmr1 KO</th>
+<th>Pasilla</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>SEQC</td>
+<td><strong>GEO</strong></td>
+<td>GSE49712</td>
+<td>GSE52778</td>
+<td>GSE180135</td>
+<td>GSE18508</td>
+</tr>
+<tr>
+<td><strong>Species</strong></td>
+<td>Human</td>
+<td>Human</td>
+<td>Mouse</td>
+<td>Drosophila</td>
+</tr>
+<tr>
+<td><strong>Design</strong></td>
+<td>UHRR vs HBRR</td>
+<td>Dex ± (paired)</td>
+<td>KO vs WT</td>
+<td>KD vs control</td>
+</tr>
+<tr>
+<td><strong>Samples</strong></td>
+<td>5 vs 5</td>
+<td>4 vs 4</td>
+<td>3 vs 3</td>
+<td>4 vs 3</td>
+</tr>
+<tr>
+<td><strong>Difficulty</strong></td>
+<td>Easy</td>
+<td>Complex</td>
+<td>Moderate</td>
+<td>Moderate</td>
+</tr>
+<tr>
+<td><strong>Genes tested</strong></td>
 <td>16,417</td>
-<td><strong>10,430</strong></td>
-<td>13,818</td>
-<td>32</td>
-<td>1,352</td>
-<td>505</td>
-<td>Brain 9/9, Cancer 6/7</td>
-<td>DP1, DP2</td>
-</tr>
-<tr>
-<td>Airway</td>
 <td>~15,000</td>
-<td><strong>951</strong></td>
-<td>2,426</td>
-<td>15</td>
-<td>161</td>
-<td>17</td>
-<td>Dex <strong>7/7</strong></td>
-<td>DP1, DP2, <strong>DP3</strong></td>
-</tr>
-<tr>
-<td>Fmr1 KO</td>
 <td>~17,000</td>
-<td><strong>398</strong></td>
-<td>1,654</td>
-<td>17</td>
-<td>607</td>
-<td>198</td>
-<td>FMRP <strong>9/11</strong></td>
-<td>DP1, DP2, DP5</td>
+<td>9,686</td>
 </tr>
 <tr>
-<td>Pasilla</td>
-<td>9,686</td>
+<td><strong>DEGs (|LFC|&gt;1)</strong></td>
+<td><strong>10,430</strong></td>
+<td><strong>951</strong></td>
+<td><strong>398</strong></td>
 <td><strong>224</strong></td>
+</tr>
+<tr>
+<td><strong>DEGs (|LFC|&gt;0.5)</strong></td>
+<td>13,818</td>
+<td>2,426</td>
+<td>1,654</td>
 <td>635</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 1b. Pathway enrichment and validation
+results</strong></p>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr>
+<th></th>
+<th>SEQC</th>
+<th>Airway</th>
+<th>Fmr1 KO</th>
+<th>Pasilla</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>GSEA Hallmark</strong></td>
+<td>32</td>
+<td>15</td>
+<td>17</td>
 <td>—</td>
+</tr>
+<tr>
+<td><strong>GSEA GO:BP</strong></td>
+<td>1,352</td>
+<td>161</td>
+<td>607</td>
 <td>—</td>
+</tr>
+<tr>
+<td><strong>GSEA Reactome</strong></td>
+<td>505</td>
+<td>17</td>
+<td>198</td>
 <td>—</td>
+</tr>
+<tr>
+<td><strong>Known targets</strong></td>
+<td>Brain 9/9, Cancer 6/7</td>
+<td>Dex <strong>7/7</strong></td>
+<td>FMRP <strong>9/11</strong></td>
 <td>Splicing KD</td>
+</tr>
+<tr>
+<td><strong>Key DP validated</strong></td>
+<td>DP1, DP2</td>
+<td>DP1, DP2, <strong>DP3</strong></td>
+<td>DP1, DP2, DP5</td>
 <td>DP1, DP2, DP3, DP5, DP7</td>
+</tr>
+<tr>
+<td><strong>Cross-method r</strong></td>
+<td>—</td>
+<td>—</td>
+<td>0.9999</td>
+<td>0.9906</td>
 </tr>
 </tbody>
 </table>

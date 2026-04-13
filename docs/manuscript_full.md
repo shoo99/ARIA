@@ -94,14 +94,29 @@ Count matrices were obtained from GEO supplementary data (SEQC: HTSeq counts; Fm
 
 ### 3.1 Benchmark Performance Overview
 
-**Table 1. Complete benchmark results**
+**Table 1a. Benchmark datasets and differential expression results**
 
-| Dataset | Genes Tested | DEGs (LFC>1) | DEGs (LFC>0.5) | Hallmark | GO:BP | Reactome | Known Targets | Key DP |
-|---------|-------------|-------------|----------------|----------|-------|----------|---------------|--------|
-| SEQC | 16,417 | **10,430** | 13,818 | 32 | 1,352 | 505 | Brain 9/9, Cancer 6/7 | DP1, DP2 |
-| Airway | ~15,000 | **951** | 2,426 | 15 | 161 | 17 | Dex **7/7** | DP1, DP2, **DP3** |
-| Fmr1 KO | ~17,000 | **398** | 1,654 | 17 | 607 | 198 | FMRP **9/11** | DP1, DP2, DP5 |
-| Pasilla | 9,686 | **224** | 635 | — | — | — | Splicing KD | DP1, DP2, DP3, DP5, DP7 |
+| | SEQC | Airway | Fmr1 KO | Pasilla |
+|---|---|---|---|---|
+| **GEO** | GSE49712 | GSE52778 | GSE180135 | GSE18508 |
+| **Species** | Human | Human | Mouse | Drosophila |
+| **Design** | UHRR vs HBRR | Dex ± (paired) | KO vs WT | KD vs control |
+| **Samples** | 5 vs 5 | 4 vs 4 | 3 vs 3 | 4 vs 3 |
+| **Difficulty** | Easy | Complex | Moderate | Moderate |
+| **Genes tested** | 16,417 | ~15,000 | ~17,000 | 9,686 |
+| **DEGs (\|LFC\|>1)** | **10,430** | **951** | **398** | **224** |
+| **DEGs (\|LFC\|>0.5)** | 13,818 | 2,426 | 1,654 | 635 |
+
+**Table 1b. Pathway enrichment and validation results**
+
+| | SEQC | Airway | Fmr1 KO | Pasilla |
+|---|---|---|---|---|
+| **GSEA Hallmark** | 32 | 15 | 17 | — |
+| **GSEA GO:BP** | 1,352 | 161 | 607 | — |
+| **GSEA Reactome** | 505 | 17 | 198 | — |
+| **Known targets** | Brain 9/9, Cancer 6/7 | Dex **7/7** | FMRP **9/11** | Splicing KD |
+| **Key DP validated** | DP1, DP2 | DP1, DP2, **DP3** | DP1, DP2, DP5 | DP1, DP2, DP3, DP5, DP7 |
+| **Cross-method r** | — | — | 0.9999 | 0.9906 |
 
 ### 3.2 DP3: Experimental Design Recognition (Airway)
 
