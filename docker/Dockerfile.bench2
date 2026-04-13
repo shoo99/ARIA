@@ -1,0 +1,2 @@
+FROM aria-bench:latest
+RUN Rscript -e 'BiocManager::install("pasilla", ask=FALSE, update=FALSE)'
