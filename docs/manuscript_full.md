@@ -6,7 +6,7 @@
 
 ## Abstract
 
-RNA-seq transcriptome analysis requires a multi-step workflow involving quality control, alignment, quantification, differential expression testing, pathway analysis, and biological interpretation. While automated pipelines such as nf-core/rnaseq execute these steps reproducibly, the critical decisions between steps — evaluating quality metrics, selecting statistical methods, adapting analysis strategies based on intermediate results, and interpreting findings in biological context — remain dependent on expert bioinformaticians. Here we present ARIA (Adaptive Reasoning for Integrated Analysis), an open-source framework that uses a Large Language Model (LLM) as a reasoning engine to autonomously navigate the decision space of RNA-seq analysis. ARIA implements eight Decision Points (DPs) that govern quality assessment, strategy adaptation, method selection, and result interpretation, combining rule-based thresholds with LLM-driven contextual reasoning. We benchmark ARIA on four public RNA-seq datasets: SEQC (GSE49712, 10,430 DEGs), Airway (GSE52778, 951 DEGs with paired design), Fmr1 KO (GSE180135, 398 DEGs), and Bottomly (GSE26024, mouse brain). ARIA correctly identifies paired experimental designs (increasing DEG detection by 21–47%), adaptively selects analysis strategies based on DEG counts, cross-validates results across DESeq2/edgeR/limma-voom (r > 0.999), and generates publication-ready reports. All 7/7 known dexamethasone targets were recovered in Airway, 9/11 FMRP targets in Fmr1 KO, and 15/16 brain/cancer markers in SEQC were correctly assigned. ARIA is freely available at https://github.com/shoo99/ARIA.
+RNA-seq transcriptome analysis requires a multi-step workflow involving quality control, alignment, quantification, differential expression testing, pathway analysis, and biological interpretation. While automated pipelines such as nf-core/rnaseq execute these steps reproducibly, the critical decisions between steps — evaluating quality metrics, selecting statistical methods, adapting analysis strategies based on intermediate results, and interpreting findings in biological context — remain dependent on expert bioinformaticians. Here we present ARIA (Adaptive Reasoning for Integrated Analysis), an open-source framework that uses a Large Language Model (LLM) as a reasoning engine to autonomously navigate the decision space of RNA-seq analysis. ARIA implements eight Decision Points (DPs) that govern quality assessment, strategy adaptation, method selection, and result interpretation, combining rule-based thresholds with LLM-driven contextual reasoning. We benchmark ARIA on four public RNA-seq datasets spanning three species: SEQC (GSE49712, human, 10,430 DEGs), Airway (GSE52778, human paired design, 951 DEGs), Fmr1 KO (GSE180135, mouse, 398 DEGs), and Pasilla (GSE18508, Drosophila, 224 DEGs with mixed library types). ARIA correctly identifies paired experimental designs (increasing DEG detection by 21–47%), detects technical covariates such as library type (+4–30% DEG gain), adaptively selects analysis strategies based on DEG counts, and cross-validates results across DESeq2/edgeR/limma-voom (r > 0.99). All 7/7 known dexamethasone targets were recovered in Airway, 9/11 FMRP targets in Fmr1 KO, and 15/16 brain/cancer markers in SEQC were correctly assigned. ARIA is freely available at https://github.com/shoo99/ARIA.
 
 **Keywords:** RNA-seq, differential expression, LLM, autonomous analysis, decision-aware pipeline, GSEA
 
@@ -58,7 +58,7 @@ ARIA is organized into four layers (Figure 1): (1) **Reasoning Engine** — an L
 | DP2 | DEG count evaluated | ≥100: standard; 10–100: add GSEA; <10: prioritize GSEA | SEQC (standard), Airway (standard), Fmr1 (standard) |
 | DP3 | Metadata examined | Detect paired/blocked designs, select model formula | Airway (+21–47% DEGs) |
 | DP4 | Unexpected gene clusters | Flag and add cell type deconvolution | Demonstrated in real-world use |
-| DP5 | Primary DE complete | Cross-validate with edgeR + limma-voom | Fmr1 (r=0.9999), Bottomly |
+| DP5 | Primary DE complete | Cross-validate with edgeR + limma-voom | Fmr1 (r=0.9999), Pasilla (r=0.9906) |
 | DP6 | Pathways identified | Literature-based hypothesis generation | Demonstrated in real-world use |
 | DP7 | Results available | Sensitivity analysis across LFC cutoffs | All benchmarks |
 | DP8 | Analysis complete | Generate HTML report + Excel + figures | All benchmarks |
@@ -74,9 +74,9 @@ ARIA is implemented in Python 3.10+ with R analysis modules executed in Docker c
 | SEQC | GSE49712 | Human | UHRR vs HBRR | 10 | Easy |
 | Airway | GSE52778 | Human | Dex ± ASM, paired | 8 | Complex |
 | Fmr1 KO | GSE180135 | Mouse | KO vs WT neurons | 6 | Moderate |
-| Bottomly | GSE26024 | Mouse | C57BL/6J vs DBA/2J | 21 | Moderate |
+| Pasilla | GSE18508 | Drosophila | pasilla KD vs control, mixed SE/PE | 7 | Moderate |
 
-Count matrices were obtained from GEO supplementary data (SEQC: HTSeq counts; Fmr1: DESeq2 counts) or Bioconductor packages (Airway: `airway` R package).
+Count matrices were obtained from GEO supplementary data (SEQC: HTSeq counts; Fmr1: DESeq2 counts) or Bioconductor packages (Airway: `airway` R package; Pasilla: `pasilla` R package).
 
 ### 2.5 Evaluation Metrics
 
@@ -95,9 +95,7 @@ Count matrices were obtained from GEO supplementary data (SEQC: HTSeq counts; Fm
 | SEQC | 16,417 | **10,430** | 13,818 | 32 | 1,352 | 505 | Brain 9/9, Cancer 6/7 | DP1, DP2 |
 | Airway | ~15,000 | **951** | 2,426 | 15 | 161 | 17 | Dex **7/7** | DP1, DP2, **DP3** |
 | Fmr1 KO | ~17,000 | **398** | 1,654 | 17 | 607 | 198 | FMRP **9/11** | DP1, DP2, DP5 |
-| Bottomly* | ~15,000 | 80 | 112 | 0 | 0 | — | Consensus | DP1, DP2, DP5 |
-
-*Simulated data for framework validation; actual data to be used for publication.
+| Pasilla | 9,686 | **224** | 635 | — | — | — | Splicing KD | DP1, DP2, DP3, DP5, DP7 |
 
 ### 3.2 DP3: Experimental Design Recognition (Airway)
 
@@ -124,7 +122,7 @@ All 7 known dexamethasone targets (DUSP1, KLF15, CRISPLD2, PER1, FKBP5, TSC22D3,
 | Benchmark | DESeq2 | edgeR exact | limma-voom | LFC correlation |
 |-----------|--------|-------------|------------|-----------------|
 | Fmr1 KO | 1,654 | ~1,600 | ~1,500 | **r = 0.9999** |
-| Bottomly | 112 | 94 | 90 | **r = 1.000** |
+| Pasilla | 635 | 739 | 674 | **r = 0.9906** |
 
 ### 3.5 DP2: Adaptive Strategy Selection
 
@@ -132,9 +130,23 @@ ARIA correctly classified each dataset's difficulty level:
 - **SEQC (10,430 DEGs):** → "standard" (ORA + GSEA) ✓
 - **Airway (951 DEGs):** → "standard" ✓
 - **Fmr1 KO (398 DEGs):** → "standard" ✓
-- **Bottomly (80 DEGs):** → "augmented" (add GSEA + relaxed cutoffs) ✓
+- **Pasilla (224 DEGs):** → "standard" ✓ (also detected SE/PE library type covariate via DP3)
 
-### 3.6 GSEA Demonstrates Value Beyond DEG Counting
+### 3.6 DP3 + DP7: Covariate Detection and Sensitivity Analysis (Pasilla)
+
+The Pasilla dataset (GSE18508) contains mixed single-end and paired-end libraries, creating a technical covariate. ARIA's DP3 detected this library type difference and included it as a covariate (`~ type + condition`), improving DEG detection:
+
+**Table 4. Impact of library type covariate (Pasilla)**
+
+| Cutoff | No covariate | With type (ARIA) | Gain |
+|--------|-------------|-----------------|------|
+| padj<0.05, \|LFC\|>1.0 | 216 | **224** | **+4%** |
+| padj<0.05, \|LFC\|>0.5 | 583 | **635** | **+9%** |
+| padj<0.05, no LFC | 853 | **1,108** | **+30%** |
+
+DP7 (sensitivity analysis) generated a 12-combination cutoff table (3 padj thresholds × 4 LFC thresholds), providing a comprehensive view of result stability. Cross-method validation (DP5) showed high concordance: DESeq2 (635), edgeR (739), limma-voom (674), with LFC correlation r = 0.9906.
+
+### 3.7 GSEA Demonstrates Value Beyond DEG Counting
 
 Even in datasets with abundant DEGs, GSEA provided complementary insights. In Fmr1 KO, 607 GO:BP pathways were enriched (padj < 0.05), revealing systemic disruption of synaptic signaling, translation regulation, and neuronal development — biological processes well-documented in Fragile X syndrome literature.
 
@@ -180,7 +192,7 @@ Extensions to single-cell RNA-seq, multi-omics integration, time-series designs,
 - **Source code:** https://github.com/shoo99/ARIA
 - **License:** MIT
 - **Docker:** aria-bench:latest
-- **Benchmarks:** GSE49712, GSE52778, GSE180135, GSE26024
+- **Benchmarks:** GSE49712, GSE52778, GSE180135, GSE18508
 
 ---
 
