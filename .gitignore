@@ -49,3 +49,4 @@ logs/
 
 # Jupyter
 .ipynb_checkpoints/
+benchmarks/data/seqc/
