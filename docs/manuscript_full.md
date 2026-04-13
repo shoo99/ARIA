@@ -58,29 +58,62 @@ ARIA is organized into four layers (Figure 1): (1) **Reasoning Engine** — an L
 
 ### 2.2 Decision Protocol
 
+Each Decision Point (DP) operates through a hybrid mechanism: rule-based thresholds handle deterministic criteria, while the LLM reasoning engine handles contextual evaluation, edge cases, and interpretive tasks. The table below summarizes each DP, followed by detailed descriptions of the LLM's role in the more complex decision points (DP5–DP7).
+
 | DP | Trigger | Action | Validation |
 |----|---------|--------|------------|
 | DP1 | QC metrics available | Pass/Warn/Fail based on mapping rate ≥85%, rRNA <5%, 5'–3' bias 0.8–1.2 | All 4 benchmarks |
 | DP2 | DEG count evaluated | ≥100: standard; 10–100: add GSEA; <10: prioritize GSEA | SEQC (standard), Airway (standard), Fmr1 (standard) |
-| DP3 | Metadata examined | Detect paired/blocked designs, select model formula | Airway (+21–47% DEGs) |
+| DP3 | Metadata examined | Detect paired/blocked designs, select model formula | Airway (+21–47% DEGs), Pasilla (+4–30%) |
 | DP4 | Unexpected gene clusters | Flag and add cell type deconvolution | Demonstrated in real-world use |
 | DP5 | Primary DE complete | Cross-validate with edgeR + limma-voom | Fmr1 (r=0.9999), Pasilla (r=0.9906) |
 | DP6 | Pathways identified | Literature-based hypothesis generation | Demonstrated in real-world use |
 | DP7 | Results available | Sensitivity analysis across LFC cutoffs | All benchmarks |
 | DP8 | Analysis complete | Generate HTML report + Excel + figures | All benchmarks |
 
+#### 2.2.1 DP5: Cross-Method Validation — LLM Role
+
+At DP5, the Execution Engine runs DESeq2, edgeR (exact test and quasi-likelihood), and limma-voom on identical data. The LLM's role is to *evaluate concordance* and *diagnose discrepancies*:
+
+1. **Input to LLM:** A structured summary containing (a) DEG counts per method at multiple cutoffs, (b) log2FC Pearson correlation, (c) Venn diagram overlap statistics.
+2. **LLM reasoning process:** The LLM receives a prompt: *"Given these cross-method results, assess whether the methods are concordant. If DEG counts differ by >50% or LFC correlation is <0.95, identify which method is the outlier and hypothesize why."*
+3. **Decision output:** If concordance is high (r > 0.95, overlap > 70%), the LLM confirms the primary DESeq2 results. If discrepancy is detected, the LLM generates a diagnostic report identifying the likely cause (e.g., edgeR QLF being overly conservative at small n, as observed in our real-world testing where QLF detected only 1–2 DEGs with n=3).
+4. **Rule component:** The correlation threshold (r > 0.95) and overlap threshold (>70%) are rule-based; the diagnostic interpretation is LLM-driven.
+
+#### 2.2.2 DP6: Literature-Based Interpretation — LLM Role
+
+DP6 represents the most LLM-dependent decision point. The process operates as follows:
+
+1. **Input to LLM:** (a) Top 10 DEGs with gene names, fold changes, and significance values; (b) Top enriched pathways from GSEA; (c) Experimental context (species, tissue, condition).
+2. **Knowledge source:** The LLM draws on its pre-trained knowledge base, which encompasses biomedical literature up to its training cutoff. No external database queries are made at this step — the LLM functions as a compressed literature index.
+3. **Prompt structure:** *"Given these DEGs [list] and enriched pathways [list] in [tissue] of [condition] mice, identify: (a) known functions of the top DEGs, (b) whether the enriched pathways are consistent with the known biology of this model, (c) testable hypotheses arising from unexpected findings. Label all interpretations as hypothesis-level."*
+4. **Output:** The LLM generates structured annotations for each top DEG and pathway, explicitly labeling confidence levels. Interpretations that align with well-established biology (e.g., Fmr1 downregulation in Fmr1 KO) receive higher confidence than novel associations.
+5. **Critical safeguard:** All LLM-generated interpretations are tagged with a disclaimer: *"Hypothesis-level interpretation based on LLM knowledge. Verify citations independently before publication."* This addresses the hallucination risk discussed in Section 4.4.
+
+#### 2.2.3 DP7: Sensitivity Analysis — LLM Role
+
+DP7 is primarily rule-based in execution but LLM-assisted in interpretation:
+
+1. **Execution (rule-based):** The system automatically tests a matrix of cutoff combinations: padj thresholds (0.01, 0.05, 0.1) × LFC thresholds (0, 0.5, 1.0, 2.0), generating a 12-cell sensitivity table.
+2. **LLM interpretation:** The LLM receives the sensitivity table and is prompted: *"Analyze this sensitivity table. Identify the cutoff combination that balances biological significance with statistical rigor for this dataset. Consider the number of DEGs, the typical fold-change magnitude, and the sample size."*
+3. **Recommendation output:** The LLM recommends an optimal cutoff (e.g., *"With n=3 and subtle KO effects, |LFC|>0.5 at padj<0.05 provides 635 DEGs — sufficient for pathway analysis while maintaining biological relevance"*) with explicit reasoning.
+
 ### 2.3 Implementation
 
 ARIA is implemented in Python 3.10+ with R analysis modules executed in Docker containers. Key tools: DESeq2 v1.46.0, edgeR, limma, fgsea, msigdbr, WGCNA, STRING DB v12. All R scripts are generated from parameterized templates for reproducibility.
 
-### 2.4 Benchmark Datasets
+### 2.4 Benchmark Datasets and Difficulty Classification
 
-| Dataset | GEO | Species | Design | N | Difficulty |
-|---------|-----|---------|--------|---|------------|
-| SEQC | GSE49712 | Human | UHRR vs HBRR | 10 | Easy |
-| Airway | GSE52778 | Human | Dex ± ASM, paired | 8 | Complex |
-| Fmr1 KO | GSE180135 | Mouse | KO vs WT neurons | 6 | Moderate |
-| Pasilla | GSE18508 | Drosophila | pasilla KD vs control, mixed SE/PE | 7 | Moderate |
+We selected four datasets spanning a range of analytical challenges. Difficulty was classified based on three objective criteria: (1) **expected effect size** (large inter-group differences vs. subtle changes), (2) **design complexity** (simple two-group vs. paired/blocked with covariates), and (3) **sample size** relative to biological variability.
+
+| Dataset | GEO | Species | Design | N | Difficulty | Rationale |
+|---------|-----|---------|--------|---|------------|-----------|
+| SEQC | GSE49712 | Human | UHRR vs HBRR | 10 | Easy | Massive effect size (~10,000 DEGs); reference RNAs with minimal biological variability; no covariates |
+| Airway | GSE52778 | Human | Dex ± ASM, paired | 8 | Complex | Moderate effect size; paired design requiring covariate modeling; 4 cell line backgrounds |
+| Fmr1 KO | GSE180135 | Mouse | KO vs WT neurons | 6 | Moderate | Moderate effect size; simple two-group design but small n=3 per group; in vitro neurons |
+| Pasilla | GSE18508 | Drosophila | pasilla KD vs control | 7 | Moderate | Moderate effect size; mixed SE/PE library types requiring technical covariate; 4 vs 3 unbalanced design |
+
+The "Easy" classification for SEQC reflects the comparison of fundamentally different RNA populations (cancer cell lines vs. brain tissue), producing thousands of DEGs even with conservative thresholds. "Complex" for Airway reflects not the DEG count but the paired experimental design, which requires correct covariate modeling — a decision that substantially impacts results (Table 2). "Moderate" for both Fmr1 KO and Pasilla reflects moderate effect sizes combined with design features that test specific ARIA capabilities (small sample size and technical covariates, respectively).
 
 Count matrices were obtained from GEO supplementary data (SEQC: HTSeq counts; Fmr1: DESeq2 counts) or Bioconductor packages (Airway: `airway` R package; Pasilla: `pasilla` R package).
 
@@ -196,11 +229,37 @@ ARIA is designed to augment, not replace, bioinformaticians. Biological interpre
 
 ### 4.4 Limitations
 
-1. **LLM hallucination risk** in literature interpretation
-2. **Statistical power** constrained by sample size, not analytical method
-3. **Bulk RNA-seq** cannot resolve cell-type-specific changes
-4. **API cost** (~$2–10 per analysis)
-5. **Scope** limited to two-group bulk RNA-seq comparisons
+#### 4.4.1 LLM Hallucination Risk and Mitigation
+
+LLMs can generate plausible but factually incorrect statements — a phenomenon known as "hallucination." In ARIA, this risk is most acute at DP6 (literature-based interpretation), where the LLM may: (a) cite non-existent papers, (b) attribute incorrect functions to genes, or (c) fabricate mechanistic connections.
+
+We implement four mitigation strategies:
+
+**(1) Scope restriction:** The LLM is only asked to interpret genes and pathways that are statistically significant. It does not generate hypotheses from non-significant results, reducing the space for fabrication.
+
+**(2) Explicit labeling:** All LLM-generated interpretations are tagged with `[Hypothesis — verify independently]`. The decision log records the exact prompt and response, enabling post-hoc audit.
+
+**(3) Cross-referencing with rule-based outputs:** LLM interpretations are constrained by the statistical results. If the LLM claims a gene is upregulated but the DE results show downregulation, this contradiction is automatically flagged.
+
+**(4) Human review checkpoints:** ARIA's report includes a dedicated "Interpretations requiring expert review" section that aggregates all LLM-generated biological claims, making it efficient for domain experts to audit.
+
+**Observed hallucination in practice:** During real-world testing, we observed that the LLM occasionally described gene functions with minor inaccuracies (e.g., attributing a protein to the wrong subcellular compartment) and once generated a reference that could not be verified. These instances were caught during expert review, reinforcing the necessity of the human-in-the-loop design.
+
+#### 4.4.2 Statistical Power
+
+Statistical power is constrained by sample size, not by the analytical method. ARIA transparently communicates this limitation and adapts its strategy (e.g., switching to GSEA), but it cannot overcome fundamental statistical constraints inherent to small-n experiments.
+
+#### 4.4.3 Cell Type Confounding
+
+Bulk RNA-seq cannot distinguish gene expression changes within a cell type from changes in cell type composition. ARIA's marker-based deconvolution (DP4) provides an approximate assessment, but single-cell or single-nucleus RNA-seq is required for definitive cell-type-resolved analysis.
+
+#### 4.4.4 API Cost and Reproducibility
+
+ARIA requires LLM API access (~$2–10 per analysis). LLM outputs are inherently stochastic; while statistical analyses use fixed seeds, the interpretive component (DP6) may vary slightly across runs. The decision log mitigates this by recording the exact reasoning for each run.
+
+#### 4.4.5 Scope
+
+The current version of ARIA is designed for bulk RNA-seq two-group comparisons. Extensions to time-series designs, single-cell RNA-seq, and multi-omics integration are planned but not yet implemented.
 
 ### 4.5 Future Directions
 

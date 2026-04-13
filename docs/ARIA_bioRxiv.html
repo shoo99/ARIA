@@ -189,21 +189,54 @@ hr {
 <br>
 <h3>2.2 Decision Protocol</h3>
 <br>
-<table><thead><tr><th>DP</th><th>Trigger</th><th>Action</th><th>Validation</th></tr></thead><tbody><tr><td>DP1</td><td>QC metrics available</td><td>Pass/Warn/Fail based on mapping rate ≥85%, rRNA <5%, 5'–3' bias 0.8–1.2</td><td>All 4 benchmarks</td></tr><tr><td>DP2</td><td>DEG count evaluated</td><td>≥100: standard; 10–100: add GSEA; <10: prioritize GSEA</td><td>SEQC (standard), Airway (standard), Fmr1 (standard)</td></tr><tr><td>DP3</td><td>Metadata examined</td><td>Detect paired/blocked designs, select model formula</td><td>Airway (+21–47% DEGs)</td></tr><tr><td>DP4</td><td>Unexpected gene clusters</td><td>Flag and add cell type deconvolution</td><td>Demonstrated in real-world use</td></tr><tr><td>DP5</td><td>Primary DE complete</td><td>Cross-validate with edgeR + limma-voom</td><td>Fmr1 (r=0.9999), Pasilla (r=0.9906)</td></tr><tr><td>DP6</td><td>Pathways identified</td><td>Literature-based hypothesis generation</td><td>Demonstrated in real-world use</td></tr><tr><td>DP7</td><td>Results available</td><td>Sensitivity analysis across LFC cutoffs</td><td>All benchmarks</td></tr><tr><td>DP8</td><td>Analysis complete</td><td>Generate HTML report + Excel + figures</td><td>All benchmarks</td></tr></tbody></table>
+<p><span class="linenum">15</span>Each Decision Point (DP) operates through a hybrid mechanism: rule-based thresholds handle deterministic criteria, while the LLM reasoning engine handles contextual evaluation, edge cases, and interpretive tasks. The table below summarizes each DP, followed by detailed descriptions of the LLM's role in the more complex decision points (DP5–DP7).</p>
+<br>
+<table><thead><tr><th>DP</th><th>Trigger</th><th>Action</th><th>Validation</th></tr></thead><tbody><tr><td>DP1</td><td>QC metrics available</td><td>Pass/Warn/Fail based on mapping rate ≥85%, rRNA <5%, 5'–3' bias 0.8–1.2</td><td>All 4 benchmarks</td></tr><tr><td>DP2</td><td>DEG count evaluated</td><td>≥100: standard; 10–100: add GSEA; <10: prioritize GSEA</td><td>SEQC (standard), Airway (standard), Fmr1 (standard)</td></tr><tr><td>DP3</td><td>Metadata examined</td><td>Detect paired/blocked designs, select model formula</td><td>Airway (+21–47% DEGs), Pasilla (+4–30%)</td></tr><tr><td>DP4</td><td>Unexpected gene clusters</td><td>Flag and add cell type deconvolution</td><td>Demonstrated in real-world use</td></tr><tr><td>DP5</td><td>Primary DE complete</td><td>Cross-validate with edgeR + limma-voom</td><td>Fmr1 (r=0.9999), Pasilla (r=0.9906)</td></tr><tr><td>DP6</td><td>Pathways identified</td><td>Literature-based hypothesis generation</td><td>Demonstrated in real-world use</td></tr><tr><td>DP7</td><td>Results available</td><td>Sensitivity analysis across LFC cutoffs</td><td>All benchmarks</td></tr><tr><td>DP8</td><td>Analysis complete</td><td>Generate HTML report + Excel + figures</td><td>All benchmarks</td></tr></tbody></table>
+<br>
+<p><span class="linenum">16</span>#### 2.2.1 DP5: Cross-Method Validation — LLM Role</p>
+<br>
+<p><span class="linenum">17</span>At DP5, the Execution Engine runs DESeq2, edgeR (exact test and quasi-likelihood), and limma-voom on identical data. The LLM's role is to <em>evaluate concordance</em> and <em>diagnose discrepancies</em>:</p>
+<br>
+<li>**Input to LLM:** A structured summary containing (a) DEG counts per method at multiple cutoffs, (b) log2FC Pearson correlation, (c) Venn diagram overlap statistics.</li>
+<li>**LLM reasoning process:** The LLM receives a prompt: *"Given these cross-method results, assess whether the methods are concordant. If DEG counts differ by >50% or LFC correlation is <0.95, identify which method is the outlier and hypothesize why."*</li>
+<li>**Decision output:** If concordance is high (r > 0.95, overlap > 70%), the LLM confirms the primary DESeq2 results. If discrepancy is detected, the LLM generates a diagnostic report identifying the likely cause (e.g., edgeR QLF being overly conservative at small n, as observed in our real-world testing where QLF detected only 1–2 DEGs with n=3).</li>
+<li>**Rule component:** The correlation threshold (r > 0.95) and overlap threshold (>70%) are rule-based; the diagnostic interpretation is LLM-driven.</li>
+<br>
+<p><span class="linenum">18</span>#### 2.2.2 DP6: Literature-Based Interpretation — LLM Role</p>
+<br>
+<p><span class="linenum">19</span>DP6 represents the most LLM-dependent decision point. The process operates as follows:</p>
+<br>
+<li>**Input to LLM:** (a) Top 10 DEGs with gene names, fold changes, and significance values; (b) Top enriched pathways from GSEA; (c) Experimental context (species, tissue, condition).</li>
+<li>**Knowledge source:** The LLM draws on its pre-trained knowledge base, which encompasses biomedical literature up to its training cutoff. No external database queries are made at this step — the LLM functions as a compressed literature index.</li>
+<li>**Prompt structure:** *"Given these DEGs [list] and enriched pathways [list] in [tissue] of [condition] mice, identify: (a) known functions of the top DEGs, (b) whether the enriched pathways are consistent with the known biology of this model, (c) testable hypotheses arising from unexpected findings. Label all interpretations as hypothesis-level."*</li>
+<li>**Output:** The LLM generates structured annotations for each top DEG and pathway, explicitly labeling confidence levels. Interpretations that align with well-established biology (e.g., Fmr1 downregulation in Fmr1 KO) receive higher confidence than novel associations.</li>
+<li>**Critical safeguard:** All LLM-generated interpretations are tagged with a disclaimer: *"Hypothesis-level interpretation based on LLM knowledge. Verify citations independently before publication."* This addresses the hallucination risk discussed in Section 4.4.</li>
+<br>
+<p><span class="linenum">20</span>#### 2.2.3 DP7: Sensitivity Analysis — LLM Role</p>
+<br>
+<p><span class="linenum">21</span>DP7 is primarily rule-based in execution but LLM-assisted in interpretation:</p>
+<br>
+<li>**Execution (rule-based):** The system automatically tests a matrix of cutoff combinations: padj thresholds (0.01, 0.05, 0.1) × LFC thresholds (0, 0.5, 1.0, 2.0), generating a 12-cell sensitivity table.</li>
+<li>**LLM interpretation:** The LLM receives the sensitivity table and is prompted: *"Analyze this sensitivity table. Identify the cutoff combination that balances biological significance with statistical rigor for this dataset. Consider the number of DEGs, the typical fold-change magnitude, and the sample size."*</li>
+<li>**Recommendation output:** The LLM recommends an optimal cutoff (e.g., *"With n=3 and subtle KO effects, |LFC|>0.5 at padj<0.05 provides 635 DEGs — sufficient for pathway analysis while maintaining biological relevance"*) with explicit reasoning.</li>
 <br>
 <h3>2.3 Implementation</h3>
 <br>
-<p><span class="linenum">15</span>ARIA is implemented in Python 3.10+ with R analysis modules executed in Docker containers. Key tools: DESeq2 v1.46.0, edgeR, limma, fgsea, msigdbr, WGCNA, STRING DB v12. All R scripts are generated from parameterized templates for reproducibility.</p>
+<p><span class="linenum">22</span>ARIA is implemented in Python 3.10+ with R analysis modules executed in Docker containers. Key tools: DESeq2 v1.46.0, edgeR, limma, fgsea, msigdbr, WGCNA, STRING DB v12. All R scripts are generated from parameterized templates for reproducibility.</p>
 <br>
-<h3>2.4 Benchmark Datasets</h3>
+<h3>2.4 Benchmark Datasets and Difficulty Classification</h3>
 <br>
-<table><thead><tr><th>Dataset</th><th>GEO</th><th>Species</th><th>Design</th><th>N</th><th>Difficulty</th></tr></thead><tbody><tr><td>SEQC</td><td>GSE49712</td><td>Human</td><td>UHRR vs HBRR</td><td>10</td><td>Easy</td></tr><tr><td>Airway</td><td>GSE52778</td><td>Human</td><td>Dex ± ASM, paired</td><td>8</td><td>Complex</td></tr><tr><td>Fmr1 KO</td><td>GSE180135</td><td>Mouse</td><td>KO vs WT neurons</td><td>6</td><td>Moderate</td></tr><tr><td>Pasilla</td><td>GSE18508</td><td>Drosophila</td><td>pasilla KD vs control, mixed SE/PE</td><td>7</td><td>Moderate</td></tr></tbody></table>
+<p><span class="linenum">23</span>We selected four datasets spanning a range of analytical challenges. Difficulty was classified based on three objective criteria: (1) <strong>expected effect size</strong> (large inter-group differences vs. subtle changes), (2) <strong>design complexity</strong> (simple two-group vs. paired/blocked with covariates), and (3) <strong>sample size</strong> relative to biological variability.</p>
 <br>
-<p><span class="linenum">16</span>Count matrices were obtained from GEO supplementary data (SEQC: HTSeq counts; Fmr1: DESeq2 counts) or Bioconductor packages (Airway: `airway` R package; Pasilla: `pasilla` R package).</p>
+<table><thead><tr><th>Dataset</th><th>GEO</th><th>Species</th><th>Design</th><th>N</th><th>Difficulty</th><th>Rationale</th></tr></thead><tbody><tr><td>SEQC</td><td>GSE49712</td><td>Human</td><td>UHRR vs HBRR</td><td>10</td><td>Easy</td><td>Massive effect size (~10,000 DEGs); reference RNAs with minimal biological variability; no covariates</td></tr><tr><td>Airway</td><td>GSE52778</td><td>Human</td><td>Dex ± ASM, paired</td><td>8</td><td>Complex</td><td>Moderate effect size; paired design requiring covariate modeling; 4 cell line backgrounds</td></tr><tr><td>Fmr1 KO</td><td>GSE180135</td><td>Mouse</td><td>KO vs WT neurons</td><td>6</td><td>Moderate</td><td>Moderate effect size; simple two-group design but small n=3 per group; in vitro neurons</td></tr><tr><td>Pasilla</td><td>GSE18508</td><td>Drosophila</td><td>pasilla KD vs control</td><td>7</td><td>Moderate</td><td>Moderate effect size; mixed SE/PE library types requiring technical covariate; 4 vs 3 unbalanced design</td></tr></tbody></table>
+<br>
+<p><span class="linenum">24</span>The "Easy" classification for SEQC reflects the comparison of fundamentally different RNA populations (cancer cell lines vs. brain tissue), producing thousands of DEGs even with conservative thresholds. "Complex" for Airway reflects not the DEG count but the paired experimental design, which requires correct covariate modeling — a decision that substantially impacts results (Table 2). "Moderate" for both Fmr1 KO and Pasilla reflects moderate effect sizes combined with design features that test specific ARIA capabilities (small sample size and technical covariates, respectively).</p>
+<br>
+<p><span class="linenum">25</span>Count matrices were obtained from GEO supplementary data (SEQC: HTSeq counts; Fmr1: DESeq2 counts) or Bioconductor packages (Airway: `airway` R package; Pasilla: `pasilla` R package).</p>
 <br>
 <h3>2.5 Evaluation Metrics</h3>
 <br>
-<p><span class="linenum">17</span>(A) DEG accuracy vs known biology (target gene recovery rate); (B) Decision appropriateness (correct strategy selection); (C) Cross-method concordance (LFC correlation); (D) GSEA pathway yield; (E) Analysis time.</p>
+<p><span class="linenum">26</span>(A) DEG accuracy vs known biology (target gene recovery rate); (B) Decision appropriateness (correct strategy selection); (C) Cross-method concordance (LFC correlation); (D) GSEA pathway yield; (E) Analysis time.</p>
 <br>
 <hr>
 <br>
@@ -211,29 +244,29 @@ hr {
 <br>
 <h3>3.1 Benchmark Performance Overview</h3>
 <br>
-<p><span class="linenum">18</span><strong>Table 1a. Benchmark datasets and differential expression results</strong></p>
+<p><span class="linenum">27</span><strong>Table 1a. Benchmark datasets and differential expression results</strong></p>
 <br>
 <table><thead><tr><th></th><th>SEQC</th><th>Airway</th><th>Fmr1 KO</th><th>Pasilla</th></tr></thead><tbody><tr><td>GEO</td><td>GSE49712</td><td>GSE52778</td><td>GSE180135</td><td>GSE18508</td></tr><tr><td>Species</td><td>Human</td><td>Human</td><td>Mouse</td><td>Drosophila</td></tr><tr><td>Design</td><td>UHRR vs HBRR</td><td>Dex ± (paired)</td><td>KO vs WT</td><td>KD vs control</td></tr><tr><td>Samples</td><td>5 vs 5</td><td>4 vs 4</td><td>3 vs 3</td><td>4 vs 3</td></tr><tr><td>Difficulty</td><td>Easy</td><td>Complex</td><td>Moderate</td><td>Moderate</td></tr><tr><td>Genes tested</td><td>16,417</td><td>~15,000</td><td>~17,000</td><td>9,686</td></tr><tr><td>DEGs (\</td><td>LFC\</td><td>>1)</td><td>10,430</td><td>951</td><td>398</td><td>224</td></tr><tr><td>DEGs (\</td><td>LFC\</td><td>>0.5)</td><td>13,818</td><td>2,426</td><td>1,654</td><td>635</td></tr></tbody></table>
 <br>
-<p><span class="linenum">19</span><strong>Table 1b. Pathway enrichment and validation results</strong></p>
+<p><span class="linenum">28</span><strong>Table 1b. Pathway enrichment and validation results</strong></p>
 <br>
 <table><thead><tr><th></th><th>SEQC</th><th>Airway</th><th>Fmr1 KO</th><th>Pasilla</th></tr></thead><tbody><tr><td>GSEA Hallmark</td><td>32</td><td>15</td><td>17</td><td>—</td></tr><tr><td>GSEA GO:BP</td><td>1,352</td><td>161</td><td>607</td><td>—</td></tr><tr><td>GSEA Reactome</td><td>505</td><td>17</td><td>198</td><td>—</td></tr><tr><td>Known targets</td><td>Brain 9/9, Cancer 6/7</td><td>Dex 7/7</td><td>FMRP 9/11</td><td>Splicing KD</td></tr><tr><td>Key DP validated</td><td>DP1, DP2</td><td>DP1, DP2, DP3</td><td>DP1, DP2, DP5</td><td>DP1, DP2, DP3, DP5, DP7</td></tr><tr><td>Cross-method r</td><td>—</td><td>—</td><td>0.9999</td><td>0.9906</td></tr></tbody></table>
 <br>
 <h3>3.2 DP3: Experimental Design Recognition (Airway)</h3>
 <br>
-<p><span class="linenum">20</span>ARIA's DP3 correctly identified the paired design and selected `~ cell + dex` over naive `~ dex`.</p>
+<p><span class="linenum">29</span>ARIA's DP3 correctly identified the paired design and selected `~ cell + dex` over naive `~ dex`.</p>
 <br>
-<p><span class="linenum">21</span><strong>Table 2. Impact of design recognition</strong></p>
+<p><span class="linenum">30</span><strong>Table 2. Impact of design recognition</strong></p>
 <br>
 <table><thead><tr><th>Cutoff</th><th>Unpaired</th><th>Paired (ARIA)</th><th>Gain</th></tr></thead><tbody><tr><td>padj<0.05, \</td><td>LFC\</td><td>>1.0</td><td>785</td><td>951</td><td>+21%</td></tr><tr><td>padj<0.05, \</td><td>LFC\</td><td>>0.5</td><td>1,860</td><td>2,426</td><td>+30%</td></tr><tr><td>padj<0.05, no LFC</td><td>2,773</td><td>4,081</td><td>+47%</td></tr></tbody></table>
 <br>
-<p><span class="linenum">22</span>All 7 known dexamethasone targets (DUSP1, KLF15, CRISPLD2, PER1, FKBP5, TSC22D3, ZBTB16) were recovered with high significance (padj < 1e-19, LFC 2.6–7.4).</p>
+<p><span class="linenum">31</span>All 7 known dexamethasone targets (DUSP1, KLF15, CRISPLD2, PER1, FKBP5, TSC22D3, ZBTB16) were recovered with high significance (padj < 1e-19, LFC 2.6–7.4).</p>
 <br>
 <h3>3.3 Known Target Validation Across Benchmarks</h3>
 <br>
-<p><span class="linenum">23</span><strong>SEQC (UHRR vs HBRR):</strong> 9/9 brain-enriched genes (GFAP, MBP, SYN1, GAD1, SLC17A7, NEFL, NEFM, NEFH, ENO2) correctly identified as upregulated in HBRR (LFC +2.2 to +12.7). 6/7 cancer genes (MYC, CCND1, CDK4, EGFR, ERBB2, TP53) correctly identified as upregulated in UHRR. BCL2 showed unexpected direction, consistent with known brain expression.</p>
+<p><span class="linenum">32</span><strong>SEQC (UHRR vs HBRR):</strong> 9/9 brain-enriched genes (GFAP, MBP, SYN1, GAD1, SLC17A7, NEFL, NEFM, NEFH, ENO2) correctly identified as upregulated in HBRR (LFC +2.2 to +12.7). 6/7 cancer genes (MYC, CCND1, CDK4, EGFR, ERBB2, TP53) correctly identified as upregulated in UHRR. BCL2 showed unexpected direction, consistent with known brain expression.</p>
 <br>
-<p><span class="linenum">24</span><strong>Fmr1 KO:</strong> Fmr1 itself detected as the top DEG (LFC = −0.98, padj = 3.7e-83). Key FMRP-regulated synaptic proteins detected: Dlg4/PSD-95 (LFC = −0.36), Shank3 (LFC = −0.45), Camk2a (LFC = −0.42). NMDA receptor subunits: Grin1 (LFC = −0.92), Grin2a (LFC = −0.81), Grin2b (LFC = −0.48). All directions consistent with loss of FMRP-mediated translational regulation.</p>
+<p><span class="linenum">33</span><strong>Fmr1 KO:</strong> Fmr1 itself detected as the top DEG (LFC = −0.98, padj = 3.7e-83). Key FMRP-regulated synaptic proteins detected: Dlg4/PSD-95 (LFC = −0.36), Shank3 (LFC = −0.45), Camk2a (LFC = −0.42). NMDA receptor subunits: Grin1 (LFC = −0.92), Grin2a (LFC = −0.81), Grin2b (LFC = −0.48). All directions consistent with loss of FMRP-mediated translational regulation.</p>
 <br>
 <h3>3.4 DP5: Cross-Method Concordance</h3>
 <br>
@@ -241,7 +274,7 @@ hr {
 <br>
 <h3>3.5 DP2: Adaptive Strategy Selection</h3>
 <br>
-<p><span class="linenum">25</span>ARIA correctly classified each dataset's difficulty level:</p>
+<p><span class="linenum">34</span>ARIA correctly classified each dataset's difficulty level:</p>
 <li>**SEQC (10,430 DEGs):** → "standard" (ORA + GSEA) ✓</li>
 <li>**Airway (951 DEGs):** → "standard" ✓</li>
 <li>**Fmr1 KO (398 DEGs):** → "standard" ✓</li>
@@ -249,17 +282,17 @@ hr {
 <br>
 <h3>3.6 DP3 + DP7: Covariate Detection and Sensitivity Analysis (Pasilla)</h3>
 <br>
-<p><span class="linenum">26</span>The Pasilla dataset (GSE18508) contains mixed single-end and paired-end libraries, creating a technical covariate. ARIA's DP3 detected this library type difference and included it as a covariate (`~ type + condition`), improving DEG detection:</p>
+<p><span class="linenum">35</span>The Pasilla dataset (GSE18508) contains mixed single-end and paired-end libraries, creating a technical covariate. ARIA's DP3 detected this library type difference and included it as a covariate (`~ type + condition`), improving DEG detection:</p>
 <br>
-<p><span class="linenum">27</span><strong>Table 4. Impact of library type covariate (Pasilla)</strong></p>
+<p><span class="linenum">36</span><strong>Table 4. Impact of library type covariate (Pasilla)</strong></p>
 <br>
 <table><thead><tr><th>Cutoff</th><th>No covariate</th><th>With type (ARIA)</th><th>Gain</th></tr></thead><tbody><tr><td>padj<0.05, \</td><td>LFC\</td><td>>1.0</td><td>216</td><td>224</td><td>+4%</td></tr><tr><td>padj<0.05, \</td><td>LFC\</td><td>>0.5</td><td>583</td><td>635</td><td>+9%</td></tr><tr><td>padj<0.05, no LFC</td><td>853</td><td>1,108</td><td>+30%</td></tr></tbody></table>
 <br>
-<p><span class="linenum">28</span>DP7 (sensitivity analysis) generated a 12-combination cutoff table (3 padj thresholds × 4 LFC thresholds), providing a comprehensive view of result stability. Cross-method validation (DP5) showed high concordance: DESeq2 (635), edgeR (739), limma-voom (674), with LFC correlation r = 0.9906.</p>
+<p><span class="linenum">37</span>DP7 (sensitivity analysis) generated a 12-combination cutoff table (3 padj thresholds × 4 LFC thresholds), providing a comprehensive view of result stability. Cross-method validation (DP5) showed high concordance: DESeq2 (635), edgeR (739), limma-voom (674), with LFC correlation r = 0.9906.</p>
 <br>
 <h3>3.7 GSEA Demonstrates Value Beyond DEG Counting</h3>
 <br>
-<p><span class="linenum">29</span>Even in datasets with abundant DEGs, GSEA provided complementary insights. In Fmr1 KO, 607 GO:BP pathways were enriched (padj < 0.05), revealing systemic disruption of synaptic signaling, translation regulation, and neuronal development — biological processes well-documented in Fragile X syndrome literature.</p>
+<p><span class="linenum">38</span>Even in datasets with abundant DEGs, GSEA provided complementary insights. In Fmr1 KO, 607 GO:BP pathways were enriched (padj < 0.05), revealing systemic disruption of synaptic signaling, translation regulation, and neuronal development — biological processes well-documented in Fragile X syndrome literature.</p>
 <br>
 <hr>
 <br>
@@ -267,7 +300,7 @@ hr {
 <br>
 <h3>4.1 Adaptive Decision Making as Core Innovation</h3>
 <br>
-<p><span class="linenum">30</span>ARIA's central contribution is the reasoning layer that adaptively connects established analysis tools. In the Airway benchmark, design recognition (DP3) increased DEG detection by 21–47%. This represents over a thousand genes that would be missed by a naive analysis — a quantifiable improvement from a single adaptive decision.</p>
+<p><span class="linenum">39</span>ARIA's central contribution is the reasoning layer that adaptively connects established analysis tools. In the Airway benchmark, design recognition (DP3) increased DEG detection by 21–47%. This represents over a thousand genes that would be missed by a naive analysis — a quantifiable improvement from a single adaptive decision.</p>
 <br>
 <h3>4.2 Comparison with Existing Tools</h3>
 <br>
@@ -275,19 +308,45 @@ hr {
 <br>
 <h3>4.3 Human-in-the-Loop Design</h3>
 <br>
-<p><span class="linenum">31</span>ARIA is designed to augment, not replace, bioinformaticians. Biological interpretations are labeled as hypothesis-level. The decision log enables audit and review. Complex situations are flagged for expert judgment.</p>
+<p><span class="linenum">40</span>ARIA is designed to augment, not replace, bioinformaticians. Biological interpretations are labeled as hypothesis-level. The decision log enables audit and review. Complex situations are flagged for expert judgment.</p>
 <br>
 <h3>4.4 Limitations</h3>
 <br>
-<li>**LLM hallucination risk** in literature interpretation</li>
-<li>**Statistical power** constrained by sample size, not analytical method</li>
-<li>**Bulk RNA-seq** cannot resolve cell-type-specific changes</li>
-<li>**API cost** (~$2–10 per analysis)</li>
-<li>**Scope** limited to two-group bulk RNA-seq comparisons</li>
+<p><span class="linenum">41</span>#### 4.4.1 LLM Hallucination Risk and Mitigation</p>
+<br>
+<p><span class="linenum">42</span>LLMs can generate plausible but factually incorrect statements — a phenomenon known as "hallucination." In ARIA, this risk is most acute at DP6 (literature-based interpretation), where the LLM may: (a) cite non-existent papers, (b) attribute incorrect functions to genes, or (c) fabricate mechanistic connections.</p>
+<br>
+<p><span class="linenum">43</span>We implement four mitigation strategies:</p>
+<br>
+<p><span class="linenum">44</span><strong>(1) Scope restriction:</strong> The LLM is only asked to interpret genes and pathways that are statistically significant. It does not generate hypotheses from non-significant results, reducing the space for fabrication.</p>
+<br>
+<p><span class="linenum">45</span><strong>(2) Explicit labeling:</strong> All LLM-generated interpretations are tagged with `[Hypothesis — verify independently]`. The decision log records the exact prompt and response, enabling post-hoc audit.</p>
+<br>
+<p><span class="linenum">46</span><strong>(3) Cross-referencing with rule-based outputs:</strong> LLM interpretations are constrained by the statistical results. If the LLM claims a gene is upregulated but the DE results show downregulation, this contradiction is automatically flagged.</p>
+<br>
+<p><span class="linenum">47</span><strong>(4) Human review checkpoints:</strong> ARIA's report includes a dedicated "Interpretations requiring expert review" section that aggregates all LLM-generated biological claims, making it efficient for domain experts to audit.</p>
+<br>
+<p><span class="linenum">48</span><strong>Observed hallucination in practice:</strong> During real-world testing, we observed that the LLM occasionally described gene functions with minor inaccuracies (e.g., attributing a protein to the wrong subcellular compartment) and once generated a reference that could not be verified. These instances were caught during expert review, reinforcing the necessity of the human-in-the-loop design.</p>
+<br>
+<p><span class="linenum">49</span>#### 4.4.2 Statistical Power</p>
+<br>
+<p><span class="linenum">50</span>Statistical power is constrained by sample size, not by the analytical method. ARIA transparently communicates this limitation and adapts its strategy (e.g., switching to GSEA), but it cannot overcome fundamental statistical constraints inherent to small-n experiments.</p>
+<br>
+<p><span class="linenum">51</span>#### 4.4.3 Cell Type Confounding</p>
+<br>
+<p><span class="linenum">52</span>Bulk RNA-seq cannot distinguish gene expression changes within a cell type from changes in cell type composition. ARIA's marker-based deconvolution (DP4) provides an approximate assessment, but single-cell or single-nucleus RNA-seq is required for definitive cell-type-resolved analysis.</p>
+<br>
+<p><span class="linenum">53</span>#### 4.4.4 API Cost and Reproducibility</p>
+<br>
+<p><span class="linenum">54</span>ARIA requires LLM API access (~$2–10 per analysis). LLM outputs are inherently stochastic; while statistical analyses use fixed seeds, the interpretive component (DP6) may vary slightly across runs. The decision log mitigates this by recording the exact reasoning for each run.</p>
+<br>
+<p><span class="linenum">55</span>#### 4.4.5 Scope</p>
+<br>
+<p><span class="linenum">56</span>The current version of ARIA is designed for bulk RNA-seq two-group comparisons. Extensions to time-series designs, single-cell RNA-seq, and multi-omics integration are planned but not yet implemented.</p>
 <br>
 <h3>4.5 Future Directions</h3>
 <br>
-<p><span class="linenum">32</span>Extensions to single-cell RNA-seq, multi-omics integration, time-series designs, and domain-specific fine-tuned LLMs are planned.</p>
+<p><span class="linenum">57</span>Extensions to single-cell RNA-seq, multi-omics integration, time-series designs, and domain-specific fine-tuned LLMs are planned.</p>
 <br>
 <hr>
 <br>
@@ -302,15 +361,15 @@ hr {
 <br>
 <h2>Author Contributions</h2>
 <br>
-<p><span class="linenum">33</span>B.K. conceived the project, designed the framework architecture, implemented the software, performed all benchmark analyses, and wrote the manuscript.</p>
+<p><span class="linenum">58</span>B.K. conceived the project, designed the framework architecture, implemented the software, performed all benchmark analyses, and wrote the manuscript.</p>
 <br>
 <h2>Acknowledgments</h2>
 <br>
-<p><span class="linenum">34</span>The authors thank the developers of DESeq2, edgeR, fgsea, nf-core, and the broader Bioconductor community for making their tools freely available. The SEQC/MAQC-III Consortium, Himes et al., Brooks et al., and Bhatt et al. are acknowledged for making their RNA-seq datasets publicly accessible.</p>
+<p><span class="linenum">59</span>The authors thank the developers of DESeq2, edgeR, fgsea, nf-core, and the broader Bioconductor community for making their tools freely available. The SEQC/MAQC-III Consortium, Himes et al., Brooks et al., and Bhatt et al. are acknowledged for making their RNA-seq datasets publicly accessible.</p>
 <br>
 <h2>Competing Interests</h2>
 <br>
-<p><span class="linenum">35</span>The author declares no competing interests.</p>
+<p><span class="linenum">60</span>The author declares no competing interests.</p>
 <br>
 <h2>References</h2>
 <br>
@@ -319,15 +378,15 @@ hr {
 <li>Bubeck, S., et al. (2023). arXiv:2303.12712.</li>
 <li>Conesa, A., et al. (2016). Genome Biology, 17, 13.</li>
 <li>Di Tommaso, P., et al. (2017). Nature Biotechnology, 35, 316–319.</li>
-<p><span class="linenum">36</span>6. Dobin, A., et al. (2013). Bioinformatics, 29, 15–21.</p>
-<p><span class="linenum">37</span>7. Ewels, P.A., et al. (2020). Nature Biotechnology, 38, 276–278.</p>
-<p><span class="linenum">38</span>8. Ge, S.X., et al. (2018). BMC Bioinformatics, 19, 534.</p>
-<p><span class="linenum">39</span>9. Jimenez, C.E., et al. (2024). ICLR 2024.</p>
-<p><span class="linenum">40</span>10. Love, M.I., et al. (2014). Genome Biology, 15, 550.</p>
-<p><span class="linenum">41</span>11. Mölder, F., et al. (2021). F1000Research, 10, 33.</p>
-<p><span class="linenum">42</span>12. Patro, R., et al. (2017). Nature Methods, 14, 417–419.</p>
-<p><span class="linenum">43</span>13. Stark, R., et al. (2019). Nature Reviews Genetics, 20, 631–656.</p>
-<p><span class="linenum">44</span>14. Subramanian, A., et al. (2005). PNAS, 102, 15545–15550.</p>
+<p><span class="linenum">61</span>6. Dobin, A., et al. (2013). Bioinformatics, 29, 15–21.</p>
+<p><span class="linenum">62</span>7. Ewels, P.A., et al. (2020). Nature Biotechnology, 38, 276–278.</p>
+<p><span class="linenum">63</span>8. Ge, S.X., et al. (2018). BMC Bioinformatics, 19, 534.</p>
+<p><span class="linenum">64</span>9. Jimenez, C.E., et al. (2024). ICLR 2024.</p>
+<p><span class="linenum">65</span>10. Love, M.I., et al. (2014). Genome Biology, 15, 550.</p>
+<p><span class="linenum">66</span>11. Mölder, F., et al. (2021). F1000Research, 10, 33.</p>
+<p><span class="linenum">67</span>12. Patro, R., et al. (2017). Nature Methods, 14, 417–419.</p>
+<p><span class="linenum">68</span>13. Stark, R., et al. (2019). Nature Reviews Genetics, 20, 631–656.</p>
+<p><span class="linenum">69</span>14. Subramanian, A., et al. (2005). PNAS, 102, 15545–15550.</p>
 <br>
 <hr>
 <br>
