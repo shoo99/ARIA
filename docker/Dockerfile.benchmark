@@ -1,0 +1,2 @@
+FROM de_analysis:v7
+RUN Rscript -e 'BiocManager::install(c("org.Hs.eg.db", "airway"), ask=FALSE, update=FALSE)'
