@@ -2,6 +2,12 @@
 
 **An LLM-Powered Framework for Autonomous Transcriptome Analysis with Decision-Aware Workflow Orchestration**
 
+**Byeongsoo Kang**¹*
+
+¹ SYSOFT, Republic of Korea
+
+\* Corresponding author: shoo99@gmail.com
+
 ---
 
 ## Abstract
@@ -195,6 +201,18 @@ Extensions to single-cell RNA-seq, multi-omics integration, time-series designs,
 - **Benchmarks:** GSE49712, GSE52778, GSE180135, GSE18508
 
 ---
+
+## Author Contributions
+
+B.K. conceived the project, designed the framework architecture, implemented the software, performed all benchmark analyses, and wrote the manuscript.
+
+## Acknowledgments
+
+The authors thank the developers of DESeq2, edgeR, fgsea, nf-core, and the broader Bioconductor community for making their tools freely available. The SEQC/MAQC-III Consortium, Himes et al., Brooks et al., and Bhatt et al. are acknowledged for making their RNA-seq datasets publicly accessible.
+
+## Competing Interests
+
+The author declares no competing interests.
 
 ## References
 

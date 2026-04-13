@@ -89,11 +89,12 @@ ARIA has been evaluated on 4 public RNA-seq datasets spanning different difficul
 If you use ARIA in your research, please cite:
 
 ```bibtex
-@article{aria2026,
-  title={ARIA: Adaptive Reasoning for Integrated Analysis — An LLM-Powered Framework for Autonomous Transcriptome Analysis},
-  author={},
-  journal={},
-  year={2026}
+@article{kang2026aria,
+  title={ARIA: Adaptive Reasoning for Integrated Analysis — An LLM-Powered Framework for Autonomous Transcriptome Analysis with Decision-Aware Workflow Orchestration},
+  author={Kang, Byeongsoo},
+  journal={bioRxiv},
+  year={2026},
+  doi={pending}
 }
 ```
 

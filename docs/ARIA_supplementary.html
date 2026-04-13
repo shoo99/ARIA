@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>supplementary</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      white-space: pre-wrap;
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+</head>
+<body>
+<h1 id="supplementary-materials">Supplementary Materials</h1>
+<h2 id="aria-adaptive-reasoning-for-integrated-analysis">ARIA: Adaptive
+Reasoning for Integrated Analysis</h2>
+<hr />
+<h3 id="table-s1.-decision-log-airway-benchmark">Table S1. Decision Log
+— Airway Benchmark</h3>
+<table>
+<colgroup>
+<col style="width: 12%" />
+<col style="width: 30%" />
+<col style="width: 18%" />
+<col style="width: 16%" />
+<col style="width: 24%" />
+</colgroup>
+<thead>
+<tr>
+<th>Step</th>
+<th>Decision Point</th>
+<th>Trigger</th>
+<th>Action</th>
+<th>Confidence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>DP1</td>
+<td>QC metrics: min 15.2M reads</td>
+<td>PASS — all samples above threshold</td>
+<td>0.95</td>
+</tr>
+<tr>
+<td>2</td>
+<td>DP3</td>
+<td>4 cell lines × 2 conditions</td>
+<td>Use paired model <code>~ cell + dex</code></td>
+<td>0.90</td>
+</tr>
+<tr>
+<td>3</td>
+<td>DP2</td>
+<td>951 DEGs at |LFC|&gt;1</td>
+<td>Standard strategy (ORA + GSEA)</td>
+<td>0.95</td>
+</tr>
+<tr>
+<td>4</td>
+<td>DP8</td>
+<td>Analysis complete</td>
+<td>Generate HTML report + figures</td>
+<td>1.00</td>
+</tr>
+</tbody>
+</table>
+<h3 id="table-s2.-decision-log-seqc-benchmark">Table S2. Decision Log —
+SEQC Benchmark</h3>
+<table>
+<colgroup>
+<col style="width: 12%" />
+<col style="width: 30%" />
+<col style="width: 18%" />
+<col style="width: 16%" />
+<col style="width: 24%" />
+</colgroup>
+<thead>
+<tr>
+<th>Step</th>
+<th>Decision Point</th>
+<th>Trigger</th>
+<th>Action</th>
+<th>Confidence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>DP1</td>
+<td>QC metrics: min 37.8M counts</td>
+<td>PASS</td>
+<td>0.95</td>
+</tr>
+<tr>
+<td>2</td>
+<td>DP2</td>
+<td>10,430 DEGs at |LFC|&gt;1</td>
+<td>Standard strategy (EASY case)</td>
+<td>0.99</td>
+</tr>
+<tr>
+<td>3</td>
+<td>DP8</td>
+<td>Analysis complete</td>
+<td>Generate report</td>
+<td>1.00</td>
+</tr>
+</tbody>
+</table>
+<h3 id="table-s3.-decision-log-fmr1-ko-benchmark">Table S3. Decision Log
+— Fmr1 KO Benchmark</h3>
+<table>
+<colgroup>
+<col style="width: 12%" />
+<col style="width: 30%" />
+<col style="width: 18%" />
+<col style="width: 16%" />
+<col style="width: 24%" />
+</colgroup>
+<thead>
+<tr>
+<th>Step</th>
+<th>Decision Point</th>
+<th>Trigger</th>
+<th>Action</th>
+<th>Confidence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>DP1</td>
+<td>QC metrics: min 30.3M counts</td>
+<td>PASS</td>
+<td>0.95</td>
+</tr>
+<tr>
+<td>2</td>
+<td>DP2</td>
+<td>398 DEGs at |LFC|&gt;1</td>
+<td>Standard strategy</td>
+<td>0.90</td>
+</tr>
+<tr>
+<td>3</td>
+<td>DP5</td>
+<td>Primary DE complete</td>
+<td>Cross-validate: edgeR + limma-voom</td>
+<td>0.85</td>
+</tr>
+<tr>
+<td>4</td>
+<td>DP8</td>
+<td>Analysis complete</td>
+<td>Generate report</td>
+<td>1.00</td>
+</tr>
+</tbody>
+</table>
+<h3 id="table-s4.-decision-log-pasilla-benchmark">Table S4. Decision Log
+— Pasilla Benchmark</h3>
+<table>
+<colgroup>
+<col style="width: 12%" />
+<col style="width: 30%" />
+<col style="width: 18%" />
+<col style="width: 16%" />
+<col style="width: 24%" />
+</colgroup>
+<thead>
+<tr>
+<th>Step</th>
+<th>Decision Point</th>
+<th>Trigger</th>
+<th>Action</th>
+<th>Confidence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>DP1</td>
+<td>QC metrics: min 8.4M counts</td>
+<td>PASS</td>
+<td>0.95</td>
+</tr>
+<tr>
+<td>2</td>
+<td>DP3</td>
+<td>Mixed SE/PE libraries detected</td>
+<td>Include library type as covariate
+<code>~ type + condition</code></td>
+<td>0.85</td>
+</tr>
+<tr>
+<td>3</td>
+<td>DP2</td>
+<td>224 DEGs at |LFC|&gt;1</td>
+<td>Standard strategy</td>
+<td>0.90</td>
+</tr>
+<tr>
+<td>4</td>
+<td>DP5</td>
+<td>Primary DE complete</td>
+<td>Cross-validate: edgeR + limma-voom (r=0.9906)</td>
+<td>0.85</td>
+</tr>
+<tr>
+<td>5</td>
+<td>DP7</td>
+<td>Results available</td>
+<td>Sensitivity analysis: 12 cutoff combinations</td>
+<td>0.90</td>
+</tr>
+<tr>
+<td>6</td>
+<td>DP8</td>
+<td>Analysis complete</td>
+<td>Generate report</td>
+<td>1.00</td>
+</tr>
+</tbody>
+</table>
+<h3 id="table-s5.-sensitivity-analysis-pasilla">Table S5. Sensitivity
+Analysis — Pasilla</h3>
+<table>
+<thead>
+<tr>
+<th>padj cutoff</th>
+<th>LFC cutoff</th>
+<th>Number of DEGs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0.01</td>
+<td>2.0</td>
+<td>~50</td>
+</tr>
+<tr>
+<td>0.01</td>
+<td>1.0</td>
+<td>~150</td>
+</tr>
+<tr>
+<td>0.01</td>
+<td>0.5</td>
+<td>~400</td>
+</tr>
+<tr>
+<td>0.01</td>
+<td>0.0</td>
+<td>~700</td>
+</tr>
+<tr>
+<td>0.05</td>
+<td>2.0</td>
+<td>~80</td>
+</tr>
+<tr>
+<td>0.05</td>
+<td>1.0</td>
+<td>224</td>
+</tr>
+<tr>
+<td>0.05</td>
+<td>0.5</td>
+<td>635</td>
+</tr>
+<tr>
+<td>0.05</td>
+<td>0.0</td>
+<td>1,108</td>
+</tr>
+<tr>
+<td>0.10</td>
+<td>2.0</td>
+<td>~100</td>
+</tr>
+<tr>
+<td>0.10</td>
+<td>1.0</td>
+<td>~280</td>
+</tr>
+<tr>
+<td>0.10</td>
+<td>0.5</td>
+<td>~800</td>
+</tr>
+<tr>
+<td>0.10</td>
+<td>0.0</td>
+<td>~1,400</td>
+</tr>
+</tbody>
+</table>
+<h3 id="table-s6.-known-target-gene-recovery">Table S6. Known Target
+Gene Recovery</h3>
+<p><strong>Airway — Dexamethasone targets (7/7 = 100%)</strong></p>
+<table>
+<thead>
+<tr>
+<th>Gene</th>
+<th>Function</th>
+<th>log2FC</th>
+<th>padj</th>
+<th>Detected</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DUSP1</td>
+<td>MAPK phosphatase</td>
+<td>2.94</td>
+<td>1.3e-124</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>KLF15</td>
+<td>Transcription factor</td>
+<td>4.46</td>
+<td>7.8e-78</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>CRISPLD2</td>
+<td>Anti-inflammatory</td>
+<td>2.63</td>
+<td>1.6e-45</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>PER1</td>
+<td>Circadian clock</td>
+<td>3.19</td>
+<td>1.9e-81</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>FKBP5</td>
+<td>GR co-chaperone</td>
+<td>4.04</td>
+<td>7.4e-26</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>TSC22D3</td>
+<td>Anti-inflammatory</td>
+<td>3.19</td>
+<td>3.2e-19</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>ZBTB16</td>
+<td>Transcription factor</td>
+<td>7.35</td>
+<td>2.7e-40</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<p><strong>SEQC — Brain markers in HBRR (9/9 = 100%)</strong></p>
+<table>
+<thead>
+<tr>
+<th>Gene</th>
+<th>Function</th>
+<th>log2FC (B vs A)</th>
+<th>Correct direction</th>
+<th>Detected</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GFAP</td>
+<td>Astrocyte marker</td>
+<td>+12.68</td>
+<td>Yes (UP in brain)</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>MBP</td>
+<td>Oligodendrocyte</td>
+<td>+8.00</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>SYN1</td>
+<td>Synaptic</td>
+<td>+7.54</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>GAD1</td>
+<td>GABAergic</td>
+<td>+4.35</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>SLC17A7</td>
+<td>Glutamatergic</td>
+<td>+8.14</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>NEFL</td>
+<td>Neurofilament</td>
+<td>+7.20</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>NEFM</td>
+<td>Neurofilament</td>
+<td>+8.14</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>NEFH</td>
+<td>Neurofilament</td>
+<td>+3.78</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>ENO2</td>
+<td>Neuron-specific</td>
+<td>+2.19</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<p><strong>SEQC — Cancer markers in UHRR (6/7 = 86%)</strong></p>
+<table>
+<thead>
+<tr>
+<th>Gene</th>
+<th>log2FC (B vs A)</th>
+<th>Correct direction</th>
+<th>Detected</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MYC</td>
+<td>-5.69</td>
+<td>Yes (DOWN = UP in cancer)</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>CCND1</td>
+<td>-3.18</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>CDK4</td>
+<td>-2.92</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>EGFR</td>
+<td>-0.44</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>ERBB2</td>
+<td>-1.90</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>TP53</td>
+<td>-3.39</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>BCL2</td>
+<td>+0.37</td>
+<td>No (known brain expression)</td>
+<td>Unexpected</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Fmr1 KO — FMRP targets (9/11 detected)</strong></p>
+<table>
+<thead>
+<tr>
+<th>Gene</th>
+<th>Function</th>
+<th>log2FC</th>
+<th>padj</th>
+<th>Detected</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Fmr1</td>
+<td>KO target gene</td>
+<td>-0.983</td>
+<td>3.7e-83</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Map1b</td>
+<td>Microtubule</td>
+<td>-0.573</td>
+<td>7.1e-79</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Dlg4</td>
+<td>PSD-95</td>
+<td>-0.361</td>
+<td>3.8e-22</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Shank3</td>
+<td>PSD scaffold</td>
+<td>-0.454</td>
+<td>2.3e-14</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Camk2a</td>
+<td>Kinase</td>
+<td>-0.424</td>
+<td>7.4e-18</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Grin1</td>
+<td>NMDA-R</td>
+<td>-0.919</td>
+<td>2.5e-81</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Grin2a</td>
+<td>NMDA-R</td>
+<td>-0.812</td>
+<td>1.1e-15</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Grin2b</td>
+<td>NMDA-R</td>
+<td>-0.479</td>
+<td>1.0e-30</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Bdnf</td>
+<td>Neurotrophin</td>
+<td>-0.446</td>
+<td>9.6e-03</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<h3 id="table-s7.-cross-method-concordance">Table S7. Cross-Method
+Concordance</h3>
+<table>
+<thead>
+<tr>
+<th>Benchmark</th>
+<th>DESeq2 DEGs</th>
+<th>edgeR DEGs</th>
+<th>limma DEGs</th>
+<th>LFC r</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SEQC</td>
+<td>13,818</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Airway</td>
+<td>2,426</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Fmr1 KO</td>
+<td>1,654</td>
+<td>~1,600</td>
+<td>~1,500</td>
+<td>0.9999</td>
+</tr>
+<tr>
+<td>Pasilla</td>
+<td>635</td>
+<td>739</td>
+<td>674</td>
+<td>0.9906</td>
+</tr>
+</tbody>
+</table>
+<p>(DEG counts at padj&lt;0.05, |LFC|&gt;0.5)</p>
+<h3 id="figure-s1.-pca-plots-for-all-benchmarks">Figure S1. PCA plots
+for all benchmarks</h3>
+<p>Available in <code>benchmarks/results/[dataset]/DE/PCA.png</code></p>
+<h3 id="figure-s2.-volcano-plots-for-all-benchmarks">Figure S2. Volcano
+plots for all benchmarks</h3>
+<p>Available in
+<code>benchmarks/results/[dataset]/DE/Volcano.png</code></p>
+<h3 id="figure-s3.-gsea-barplots-for-all-benchmarks">Figure S3. GSEA
+barplots for all benchmarks</h3>
+<p>Available in
+<code>benchmarks/results/[dataset]/GSEA/GSEA_*.png</code></p>
+<h3 id="figure-s4.-cross-method-venn-diagrams">Figure S4. Cross-method
+Venn diagrams</h3>
+<p>Available in
+<code>benchmarks/results/[dataset]/method_comparison/Venn_methods.png</code></p>
+<hr />
+<h2 id="software-versions">Software Versions</h2>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Version</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Python</td>
+<td>3.10+</td>
+</tr>
+<tr>
+<td>R</td>
+<td>4.4.1</td>
+</tr>
+<tr>
+<td>DESeq2</td>
+<td>1.46.0</td>
+</tr>
+<tr>
+<td>edgeR</td>
+<td>4.4.0</td>
+</tr>
+<tr>
+<td>limma</td>
+<td>3.62.1</td>
+</tr>
+<tr>
+<td>fgsea</td>
+<td>1.32.0</td>
+</tr>
+<tr>
+<td>msigdbr</td>
+<td>2026.1</td>
+</tr>
+<tr>
+<td>EnhancedVolcano</td>
+<td>1.24.0</td>
+</tr>
+<tr>
+<td>ggplot2</td>
+<td>4.0.2</td>
+</tr>
+<tr>
+<td>Docker</td>
+<td>24.0+</td>
+</tr>
+<tr>
+<td>ARIA</td>
+<td>0.1.0</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>
