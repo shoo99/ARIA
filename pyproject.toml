@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[project]
+name = "aria-omics"
+version = "0.1.0"
+description = "ARIA: Adaptive Reasoning for Integrated Analysis — LLM-powered autonomous transcriptome analysis"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.10"
+authors = [
+    {name = "ARIA Contributors"},
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+    "anthropic>=0.30.0",
+    "pandas>=2.0",
+    "numpy>=1.24",
+    "jinja2>=3.1",
+    "pyyaml>=6.0",
+    "rich>=13.0",
+    "click>=8.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "ruff>=0.1.0",
+]
+
+[project.scripts]
+aria = "aria.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/shoo99/ARIA"
+Repository = "https://github.com/shoo99/ARIA"
+Issues = "https://github.com/shoo99/ARIA/issues"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"

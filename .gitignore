@@ -1,0 +1,51 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# R
+.Rhistory
+.RData
+.Rproj.user/
+
+# Environment
+.env
+.env.local
+*.token
+*credentials*
+*secret*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+docker/tmp/
+
+# Data (large files)
+benchmarks/data/*.fastq*
+benchmarks/data/*.bam
+benchmarks/data/*.fa
+benchmarks/data/*.gtf
+*.gz
+*.bz2
+
+# Results (regeneratable)
+benchmarks/results/
+output/
+
+# Logs
+*.log
+logs/
+
+# Jupyter
+.ipynb_checkpoints/
