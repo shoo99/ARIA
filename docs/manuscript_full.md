@@ -218,10 +218,23 @@ ARIA's central contribution is the reasoning layer that adaptively connects esta
 |---------|---------|--------|------|------|
 | Execution automation | ✓ | ✓ | ✓ | ✓ |
 | Result-based adaptation | ✗ | ✗ | △ | **✓** |
-| Design recognition | ✗ | ✗ | △ | **✓** |
+| Design recognition | ✗ | ✗ | ✗ | **✓** |
 | Cross-method validation | ✗ | ✗ | ✗ | **✓** |
 | Biological interpretation | ✗ | ✗ | △ | **✓** |
 | Decision transparency | ✗ | ✗ | ✗ | **✓** |
+| Reproducibility | ✓ | ✓ | △ | ✓ |
+
+**Decision transparency** is defined here as the ability of the system to record, explain, and expose the reasoning behind each analytical choice made during the workflow. This encompasses three levels:
+
+**(1) What was decided:** A structured log of every decision point triggered during the analysis, including the action taken (e.g., "switched to GSEA-priority strategy") and the threshold or criterion that triggered it (e.g., "DEG count = 47, below threshold of 100").
+
+**(2) Why it was decided:** A natural-language rationale for each decision, explaining the reasoning chain. For example: *"With only 47 DEGs at |LFC|>1 and n=3 per group, ORA-based pathway analysis is statistically underpowered. GSEA, which uses the full ranked gene list, is more appropriate for this dataset (cf. Subramanian et al., 2005)."*
+
+**(3) What alternatives were considered:** Where applicable, the log records alternative actions that were evaluated and rejected, with reasons. For example: *"Multi-factor model considered but not applied — single tissue analysis, no blocking factor detected."*
+
+Existing tools do not provide this level of transparency. **nf-core/rnaseq** logs tool versions and execution parameters but does not record analytical reasoning — it follows a fixed path with no decisions to document. **Galaxy** records the history of tool invocations with parameters, but the *why* behind parameter choices is not captured, as these are made by the user through the GUI. **iDEP** provides interactive visualizations that implicitly guide user decisions, but the decision process itself is not logged or exportable.
+
+ARIA's decision log is saved as a structured JSON file (`execution_log.json`) alongside every analysis, enabling: (a) post-hoc audit by reviewers or collaborators, (b) reproducibility of the analytical reasoning (not just the execution), and (c) identification of points where the LLM's reasoning may need expert correction.
 
 ### 4.3 Human-in-the-Loop Design
 
