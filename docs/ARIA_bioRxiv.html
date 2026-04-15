@@ -1016,6 +1016,66 @@ strategy would miss entirely.</p>
 </table>
 <p>Cross-validation (DP5) provides 681 high-confidence consensus DEGs
 and quantitative concordance metrics, increasing result reliability.</p>
+<p><strong>Table 5b. Metadata obfuscation test: Rule-only fails with
+non-standard column names</strong></p>
+<p>To directly demonstrate when the LLM provides value that rules
+cannot, we renamed the Airway metadata column “cell” to “sample_origin”
+(a non-standard name not in the rule keyword list).</p>
+<table>
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 32%" />
+<col style="width: 10%" />
+<col style="width: 19%" />
+<col style="width: 22%" />
+</colgroup>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Rule detects blocking?</th>
+<th>Model</th>
+<th>DEGs (LFC&gt;1)</th>
+<th>DEGs (no LFC)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Standard metadata (column = “cell”)</td>
+<td>Yes</td>
+<td>~ cell + dex</td>
+<td><strong>951</strong></td>
+<td><strong>4,081</strong></td>
+</tr>
+<tr>
+<td>Obfuscated metadata — Rule-only</td>
+<td><strong>No</strong></td>
+<td>~ dex (naive)</td>
+<td>785</td>
+<td>2,773</td>
+</tr>
+<tr>
+<td>Obfuscated metadata — LLM-assisted</td>
+<td><strong>Yes</strong> (examines values)</td>
+<td>~ sample_origin + dex</td>
+<td><strong>951</strong></td>
+<td><strong>4,081</strong></td>
+</tr>
+<tr>
+<td>Minimal metadata — Rule-only</td>
+<td><strong>No</strong></td>
+<td>~ condition</td>
+<td>785</td>
+<td>2,773</td>
+</tr>
+</tbody>
+</table>
+<p>When the metadata column is renamed to a non-standard name, the
+rule-based system fails to detect the blocking factor, resulting in
+<strong>166 fewer DEGs (17% loss)</strong> at |LFC|&gt;1. The LLM, which
+examines the actual values in each column rather than relying on column
+name keywords, correctly identifies the blocking structure and recovers
+the full DEG set. This demonstrates a concrete scenario where LLM
+reasoning provides quantifiable value beyond rule-based logic.</p>
 <p>We categorize the LLM’s contribution at each DP:</p>
 <table>
 <colgroup>
@@ -1211,10 +1271,44 @@ log mitigates this by recording the exact reasoning for each run.</p>
 <p>The current version of ARIA is designed for bulk RNA-seq two-group
 comparisons. Extensions to time-series designs, single-cell RNA-seq, and
 multi-omics integration are planned but not yet implemented.</p>
-<h3 id="future-directions">4.8 Future Directions</h3>
+<h3 id="llm-training-data-contamination">4.8 LLM Training Data
+Contamination</h3>
+<p>A limitation of using well-characterized benchmark datasets is that
+the LLM may have encountered these datasets — and their expected results
+— during pre-training. We address this concern as follows:</p>
+<ol type="1">
+<li><p><strong>Statistical analyses are LLM-independent.</strong>
+DESeq2, fgsea, and edgeR produce identical results regardless of LLM
+knowledge. The DEG lists, fold changes, p-values, and pathway
+enrichments are computed entirely by these established tools, not by the
+LLM.</p></li>
+<li><p><strong>Adaptive decisions are metric-driven.</strong> DP1 (QC)
+evaluates computed mapping rates against fixed thresholds. DP2 (strategy
+selection) counts DEGs. DP3 (design recognition) examines metadata
+structure. None of these decisions depend on the LLM recalling prior
+knowledge about a specific dataset.</p></li>
+<li><p><strong>The metadata obfuscation test (Table 5b) provides
+evidence against contamination.</strong> When column names were changed,
+the rule system failed but the LLM succeeded by analyzing column
+<em>values</em> — a reasoning task that cannot be performed by recall of
+training data alone.</p></li>
+<li><p><strong>DP6 (interpretation) is the most susceptible.</strong>
+The LLM may “know” that Fmr1 KO affects synaptic proteins, not from
+reasoning but from memorization. We mitigate this by labeling all
+interpretations as hypothesis-level and requiring independent
+verification. Validation on novel, unpublished datasets would provide
+stronger evidence that DP6 reasoning generalizes beyond the training
+distribution.</p></li>
+</ol>
+<h3 id="future-directions">4.9 Future Directions</h3>
 <p>Extensions to single-cell RNA-seq, multi-omics integration,
-time-series designs, and domain-specific fine-tuned LLMs are
-planned.</p>
+time-series designs, and domain-specific fine-tuned LLMs are planned.
+Specific priorities include: (1) a formal ablation with unstructured,
+free-text metadata from real GEO submissions; (2) validation on novel,
+unpublished datasets to address training data contamination concerns;
+(3) DP6 reproducibility evaluation using text similarity metrics across
+multiple LLM calls; and (4) benchmarking on datasets with &lt;50 DEGs
+where the GSEA-priority pathway is triggered.</p>
 <hr />
 <h2 id="data-and-code-availability">5. Data and Code Availability</h2>
 <ul>

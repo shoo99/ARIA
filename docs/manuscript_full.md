@@ -284,6 +284,19 @@ The adaptive DP2 adds 17 Hallmark pathways that a fixed ORA-only strategy would 
 
 Cross-validation (DP5) provides 681 high-confidence consensus DEGs and quantitative concordance metrics, increasing result reliability.
 
+**Table 5b. Metadata obfuscation test: Rule-only fails with non-standard column names**
+
+To directly demonstrate when the LLM provides value that rules cannot, we renamed the Airway metadata column "cell" to "sample_origin" (a non-standard name not in the rule keyword list).
+
+| Scenario | Rule detects blocking? | Model | DEGs (LFC>1) | DEGs (no LFC) |
+|----------|----------------------|-------|-------------|---------------|
+| Standard metadata (column = "cell") | Yes | ~ cell + dex | **951** | **4,081** |
+| Obfuscated metadata — Rule-only | **No** | ~ dex (naive) | 785 | 2,773 |
+| Obfuscated metadata — LLM-assisted | **Yes** (examines values) | ~ sample_origin + dex | **951** | **4,081** |
+| Minimal metadata — Rule-only | **No** | ~ condition | 785 | 2,773 |
+
+When the metadata column is renamed to a non-standard name, the rule-based system fails to detect the blocking factor, resulting in **166 fewer DEGs (17% loss)** at |LFC|>1. The LLM, which examines the actual values in each column rather than relying on column name keywords, correctly identifies the blocking structure and recovers the full DEG set. This demonstrates a concrete scenario where LLM reasoning provides quantifiable value beyond rule-based logic.
+
 We categorize the LLM's contribution at each DP:
 
 | Category | DPs | LLM contribution | Could rule-only replicate? |
@@ -361,9 +374,21 @@ ARIA requires LLM API access (~$2–10 per analysis). LLM outputs are inherently
 
 The current version of ARIA is designed for bulk RNA-seq two-group comparisons. Extensions to time-series designs, single-cell RNA-seq, and multi-omics integration are planned but not yet implemented.
 
-### 4.8 Future Directions
+### 4.8 LLM Training Data Contamination
 
-Extensions to single-cell RNA-seq, multi-omics integration, time-series designs, and domain-specific fine-tuned LLMs are planned.
+A limitation of using well-characterized benchmark datasets is that the LLM may have encountered these datasets — and their expected results — during pre-training. We address this concern as follows:
+
+(1) **Statistical analyses are LLM-independent.** DESeq2, fgsea, and edgeR produce identical results regardless of LLM knowledge. The DEG lists, fold changes, p-values, and pathway enrichments are computed entirely by these established tools, not by the LLM.
+
+(2) **Adaptive decisions are metric-driven.** DP1 (QC) evaluates computed mapping rates against fixed thresholds. DP2 (strategy selection) counts DEGs. DP3 (design recognition) examines metadata structure. None of these decisions depend on the LLM recalling prior knowledge about a specific dataset.
+
+(3) **The metadata obfuscation test (Table 5b) provides evidence against contamination.** When column names were changed, the rule system failed but the LLM succeeded by analyzing column *values* — a reasoning task that cannot be performed by recall of training data alone.
+
+(4) **DP6 (interpretation) is the most susceptible.** The LLM may "know" that Fmr1 KO affects synaptic proteins, not from reasoning but from memorization. We mitigate this by labeling all interpretations as hypothesis-level and requiring independent verification. Validation on novel, unpublished datasets would provide stronger evidence that DP6 reasoning generalizes beyond the training distribution.
+
+### 4.9 Future Directions
+
+Extensions to single-cell RNA-seq, multi-omics integration, time-series designs, and domain-specific fine-tuned LLMs are planned. Specific priorities include: (1) a formal ablation with unstructured, free-text metadata from real GEO submissions; (2) validation on novel, unpublished datasets to address training data contamination concerns; (3) DP6 reproducibility evaluation using text similarity metrics across multiple LLM calls; and (4) benchmarking on datasets with <50 DEGs where the GSEA-priority pathway is triggered.
 
 ---
 
