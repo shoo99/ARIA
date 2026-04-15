@@ -886,11 +886,137 @@ table).</p>
 the analytical reasoning (not just the execution), and (c)
 identification of points where the LLM’s reasoning may need expert
 correction.</p>
-<h3 id="ablation-rule-based-vs.-llm-assisted-decisions">4.3 Ablation:
-Rule-Based vs. LLM-Assisted Decisions</h3>
+<h3 id="ablation-study-rule-based-vs.-llm-assisted-decisions">4.3
+Ablation Study: Rule-Based vs. LLM-Assisted Decisions</h3>
 <p>A critical question is whether the LLM component provides value
-beyond what simple rule-based logic could achieve. We distinguish three
-categories of Decision Points:</p>
+beyond what simple rule-based logic could achieve. We conducted an
+ablation study comparing three scenarios: (A) no adaptive decision
+(naive defaults), (B) rule-only decisions (keyword matching on
+metadata), and (C) rule+LLM decisions (ARIA’s full system).</p>
+<p><strong>Table 5. DP3 ablation results</strong></p>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 22%" />
+<col style="width: 22%" />
+<col style="width: 22%" />
+<col style="width: 22%" />
+</colgroup>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Airway DEGs (LFC&gt;1)</th>
+<th>Airway DEGs (no LFC)</th>
+<th>Pasilla DEGs (LFC&gt;1)</th>
+<th>Pasilla DEGs (no LFC)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A: No DP3 (naive)</td>
+<td>785</td>
+<td>2,773</td>
+<td>216</td>
+<td>853</td>
+</tr>
+<tr>
+<td>B: Rule-only DP3</td>
+<td><strong>951</strong></td>
+<td><strong>4,081</strong></td>
+<td><strong>224</strong></td>
+<td><strong>1,108</strong></td>
+</tr>
+<tr>
+<td>C: Rule+LLM DP3</td>
+<td><strong>951</strong></td>
+<td><strong>4,081</strong></td>
+<td><strong>224</strong></td>
+<td><strong>1,108</strong></td>
+</tr>
+</tbody>
+</table>
+<p>For DP3, rule-based keyword matching (“cell”, “type”, “batch” in
+metadata column names) successfully detected the blocking factors in
+both datasets, producing identical DEG counts to the LLM-assisted
+approach. This confirms that for structured metadata with standard
+column names, rules suffice.</p>
+<p>However, the LLM adds value in three ways that this ablation cannot
+fully capture: (1) <strong>generalization to unstructured
+metadata</strong> — when blocking factors are encoded in free-text
+sample descriptions rather than structured columns; (2)
+<strong>rationale generation</strong> — explaining <em>why</em> a
+covariate should be included, enabling expert audit; (3) <strong>edge
+case handling</strong> — recognizing non-obvious confounders.</p>
+<p><strong>Table 6. DP2 ablation: Fixed vs adaptive strategy (Fmr1
+KO)</strong></p>
+<table>
+<colgroup>
+<col style="width: 15%" />
+<col style="width: 23%" />
+<col style="width: 33%" />
+<col style="width: 27%" />
+</colgroup>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>DEGs available</th>
+<th>GSEA Hallmark pathways</th>
+<th>Analysis breadth</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A: Fixed ORA-only</td>
+<td>398</td>
+<td>0 (not run)</td>
+<td>DEG list only</td>
+</tr>
+<tr>
+<td>B: Adaptive DP2</td>
+<td>398</td>
+<td><strong>17</strong></td>
+<td>DEG list + full gene ranking</td>
+</tr>
+</tbody>
+</table>
+<p>The adaptive DP2 adds 17 Hallmark pathways that a fixed ORA-only
+strategy would miss entirely.</p>
+<p><strong>Table 7. DP5 ablation: Single method vs cross-validation
+(Pasilla)</strong></p>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Without DP5</th>
+<th>With DP5</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Methods used</td>
+<td>DESeq2 only</td>
+<td>DESeq2 + edgeR + limma</td>
+</tr>
+<tr>
+<td>DEGs (LFC&gt;0.5)</td>
+<td>635</td>
+<td>635 / 739 / 674</td>
+</tr>
+<tr>
+<td>Consensus (2/3 methods)</td>
+<td>N/A</td>
+<td><strong>681</strong></td>
+</tr>
+<tr>
+<td>LFC correlation</td>
+<td>N/A</td>
+<td><strong>r = 0.9906</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Cross-validation (DP5) provides 681 high-confidence consensus DEGs
+and quantitative concordance metrics, increasing result reliability.</p>
+<p>We categorize the LLM’s contribution at each DP:</p>
 <table>
 <colgroup>
 <col style="width: 16%" />
@@ -910,39 +1036,23 @@ categories of Decision Points:</p>
 <tr>
 <td><strong>Primarily rule-based</strong></td>
 <td>DP1, DP2, DP7</td>
-<td>Minimal — thresholds drive decisions</td>
-<td>Yes, with predefined thresholds</td>
+<td>Minimal</td>
+<td>Yes</td>
 </tr>
 <tr>
 <td><strong>LLM-assisted</strong></td>
 <td>DP3, DP4, DP5</td>
-<td>Moderate — LLM interprets edge cases</td>
-<td>Partially — simple cases yes, complex metadata no</td>
+<td>Moderate (edge cases, rationale)</td>
+<td>Partially</td>
 </tr>
 <tr>
 <td><strong>LLM-dependent</strong></td>
 <td>DP6, DP8</td>
-<td>Essential — interpretation and reporting</td>
-<td>No — requires natural language reasoning</td>
+<td>Essential (interpretation, reporting)</td>
+<td>No</td>
 </tr>
 </tbody>
 </table>
-<p>For DP3 (design recognition), a rule-based system could detect paired
-designs from structured metadata fields (e.g., explicit “paired”
-columns). However, ARIA’s LLM also infers blocking factors from
-unstructured sample names, experimental descriptions, and mixed library
-types — cases where simple keyword matching would fail. The 21–47% DEG
-gain in Airway could largely be replicated by rules, but the
-generalization to arbitrary metadata formats requires LLM
-flexibility.</p>
-<p>For DP6 (literature interpretation), no rule-based system can
-generate the contextual biological narratives that ARIA produces. This
-is the clearest case for LLM value, though also the highest
-hallucination risk.</p>
-<p>A formal ablation study comparing rule-only, rule+LLM, and LLM-only
-configurations across diverse datasets is an important direction for
-future work and would strengthen the evidence for LLM-specific
-contributions at each DP.</p>
 <h3 id="benchmark-limitations-and-missing-scenarios">4.4 Benchmark
 Limitations and Missing Scenarios</h3>
 <p>Our current benchmarks have two notable gaps:</p>
@@ -961,24 +1071,89 @@ detection (DP4) was demonstrated in real-world use (detecting ependymal
 markers in neuronal tissue) but not in the controlled benchmarks.
 Constructing a benchmark with known cell-type contamination would
 provide systematic validation.</p>
-<h3 id="reproducibility-of-llm-driven-components">4.5 Reproducibility of
-LLM-Driven Components</h3>
-<p>The statistical components of ARIA (DESeq2, fgsea, edgeR) are fully
-deterministic with fixed seeds and produce identical results across
-runs. The LLM-driven components (DP6 interpretation, DP8 report
-generation) are inherently stochastic.</p>
-<p>We note the following reproducibility characteristics: -
-<strong>DP1–DP5, DP7:</strong> Fully reproducible — rule-based
-thresholds produce identical decisions - <strong>DP6:</strong>
-Interpretations may vary in wording but converge on the same biological
-themes (e.g., the same top genes and pathways are highlighted, though
-the narrative framing may differ) - <strong>DP8:</strong> Report
-structure is templated; only the LLM-generated interpretation sections
-vary</p>
-<p>A systematic reproducibility study with multiple independent runs is
-planned for a future version. In practice, the decision log captures
-each run’s complete reasoning chain, enabling comparison across
-executions.</p>
+<h3 id="reproducibility-of-statistical-and-llm-components">4.5
+Reproducibility of Statistical and LLM Components</h3>
+<p>To assess reproducibility, we executed the Airway benchmark three
+independent times and compared all outputs.</p>
+<p><strong>Table 8. Reproducibility test results (3 independent runs,
+Airway)</strong></p>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Run 1</th>
+<th>Run 2</th>
+<th>Run 3</th>
+<th>Identical?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DEGs (LFC&gt;1)</td>
+<td>951</td>
+<td>951</td>
+<td>951</td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr>
+<td>DEGs (LFC&gt;0.5)</td>
+<td>2,426</td>
+<td>2,426</td>
+<td>2,426</td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr>
+<td>DEGs (no LFC)</td>
+<td>4,081</td>
+<td>4,081</td>
+<td>4,081</td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr>
+<td>LFC correlation (min pairwise)</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td><strong>r = 1.0000</strong></td>
+</tr>
+<tr>
+<td>padj correlation (min pairwise)</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td><strong>r = 1.0000</strong></td>
+</tr>
+<tr>
+<td>GSEA NES correlation (min pairwise)</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td><strong>r = 1.0000</strong></td>
+</tr>
+<tr>
+<td>GSEA pathway Jaccard overlap (min)</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td><strong>1.0000</strong></td>
+</tr>
+</tbody>
+</table>
+<p>All statistical components (DESeq2 DE results, fgsea GSEA results)
+are <strong>fully deterministic</strong> with fixed random seeds,
+producing bit-identical results across runs. This includes DEG counts,
+fold changes, p-values, GSEA enrichment scores, and pathway significance
+calls.</p>
+<p>The LLM-driven components (DP6 biological interpretation, DP8 report
+narrative) are inherently stochastic and were not included in this
+reproducibility test, as they require API calls with non-deterministic
+sampling. However: - <strong>DP6 outputs</strong> are expected to
+converge on the same biological themes across runs (same top genes and
+pathways highlighted), with variation in narrative wording - All LLM
+interactions are logged in <code>execution_log.json</code>, enabling
+comparison across executions - A formal evaluation of DP6
+reproducibility using text similarity metrics (BLEU, cosine similarity)
+across multiple LLM calls is planned for a future version</p>
 <h3 id="human-in-the-loop-design">4.6 Human-in-the-Loop Design</h3>
 <p>ARIA is designed to augment, not replace, bioinformaticians.
 Biological interpretations are labeled as hypothesis-level. The decision
