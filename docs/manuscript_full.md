@@ -202,7 +202,7 @@ ARIA correctly classified each dataset's difficulty level:
 
 The Pasilla dataset (GSE18508) contains mixed single-end and paired-end libraries, creating a technical covariate. ARIA's DP3 detected this library type difference and included it as a covariate (`~ type + condition`), improving DEG detection:
 
-**Table 4. Impact of library type covariate (Pasilla)**
+**Table 3. Impact of library type covariate (Pasilla)**
 
 | Cutoff | No covariate | With type (ARIA) | Gain |
 |--------|-------------|-----------------|------|
@@ -252,7 +252,7 @@ ARIA's decision log is saved as a structured JSON file (`execution_log.json`) al
 
 A critical question is whether the LLM component provides value beyond what simple rule-based logic could achieve. We conducted an ablation study comparing three scenarios: (A) no adaptive decision (naive defaults), (B) rule-only decisions (keyword matching on metadata), and (C) rule+LLM decisions (ARIA's full system).
 
-**Table 5. DP3 ablation results**
+**Table 4. DP3 ablation results**
 
 | Scenario | Airway DEGs (LFC>1) | Airway DEGs (no LFC) | Pasilla DEGs (LFC>1) | Pasilla DEGs (no LFC) |
 |----------|---------------------|---------------------|---------------------|---------------------|
@@ -264,7 +264,7 @@ For DP3, rule-based keyword matching ("cell", "type", "batch" in metadata column
 
 However, the LLM adds value in three ways that this ablation cannot fully capture: (1) **generalization to unstructured metadata** — when blocking factors are encoded in free-text sample descriptions rather than structured columns; (2) **rationale generation** — explaining *why* a covariate should be included, enabling expert audit; (3) **edge case handling** — recognizing non-obvious confounders.
 
-**Table 6. DP2 ablation: Fixed vs adaptive strategy (Fmr1 KO)**
+**Table 5. DP2 ablation: Fixed vs adaptive strategy (Fmr1 KO)**
 
 | Scenario | DEGs available | GSEA Hallmark pathways | Analysis breadth |
 |----------|---------------|----------------------|------------------|
@@ -273,7 +273,7 @@ However, the LLM adds value in three ways that this ablation cannot fully captur
 
 The adaptive DP2 adds 17 Hallmark pathways that a fixed ORA-only strategy would miss entirely.
 
-**Table 7. DP5 ablation: Single method vs cross-validation (Pasilla)**
+**Table 6. DP5 ablation: Single method vs cross-validation (Pasilla)**
 
 | Metric | Without DP5 | With DP5 |
 |--------|------------|----------|
@@ -284,7 +284,7 @@ The adaptive DP2 adds 17 Hallmark pathways that a fixed ORA-only strategy would 
 
 Cross-validation (DP5) provides 681 high-confidence consensus DEGs and quantitative concordance metrics, increasing result reliability.
 
-**Table 5b. Metadata obfuscation test: Rule-only fails with non-standard column names**
+**Table 7. Metadata obfuscation test: Rule-only fails with non-standard column names**
 
 To directly demonstrate when the LLM provides value that rules cannot, we renamed the Airway metadata column "cell" to "sample_origin" (a non-standard name not in the rule keyword list).
 
@@ -317,7 +317,7 @@ Our current benchmarks have two notable gaps:
 
 To assess reproducibility, we executed the Airway benchmark three independent times and compared all outputs.
 
-**Table 8. Reproducibility test results (3 independent runs, Airway)**
+**Table 8. Reproducibility test results (3 independent runs, Airway dataset)**
 
 | Metric | Run 1 | Run 2 | Run 3 | Identical? |
 |--------|-------|-------|-------|-----------|
@@ -382,7 +382,7 @@ A limitation of using well-characterized benchmark datasets is that the LLM may 
 
 (2) **Adaptive decisions are metric-driven.** DP1 (QC) evaluates computed mapping rates against fixed thresholds. DP2 (strategy selection) counts DEGs. DP3 (design recognition) examines metadata structure. None of these decisions depend on the LLM recalling prior knowledge about a specific dataset.
 
-(3) **The metadata obfuscation test (Table 5b) provides evidence against contamination.** When column names were changed, the rule system failed but the LLM succeeded by analyzing column *values* — a reasoning task that cannot be performed by recall of training data alone.
+(3) **The metadata obfuscation test (Table 7) provides evidence against contamination.** When column names were changed, the rule system failed but the LLM succeeded by analyzing column *values* — a reasoning task that cannot be performed by recall of training data alone.
 
 (4) **DP6 (interpretation) is the most susceptible.** The LLM may "know" that Fmr1 KO affects synaptic proteins, not from reasoning but from memorization. We mitigate this by labeling all interpretations as hypothesis-level and requiring independent verification. Validation on novel, unpublished datasets would provide stronger evidence that DP6 reasoning generalizes beyond the training distribution.
 
