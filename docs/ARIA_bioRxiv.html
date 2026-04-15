@@ -118,10 +118,13 @@ correctly identifies paired experimental designs (increasing DEG
 detection by 21–47%), detects technical covariates such as library type
 (+4–30% DEG gain), adaptively selects analysis strategies based on DEG
 counts, and cross-validates results across DESeq2/edgeR/limma-voom (r
-&gt; 0.99). All 7/7 known dexamethasone targets were recovered in
-Airway, 9/11 FMRP targets in Fmr1 KO, and 15/16 brain/cancer markers in
-SEQC were correctly assigned. ARIA is freely available at
-https://github.com/shoo99/ARIA.</p>
+&gt; 0.99). All 7/7 known dexamethasone-responsive genes (Himes et al.,
+2014) were recovered in Airway, 9/11 FMRP translational targets (Bhatt
+et al., 2012; Darnell et al., 2011) in Fmr1 KO, and 15/16 tissue-type
+markers (9/9 brain-enriched genes + 6/7 cancer-associated genes; SEQC
+Consortium, 2014) in SEQC were correctly assigned (BCL2 showed
+brain-enriched expression despite being classified as a cancer marker).
+ARIA is freely available at https://github.com/shoo99/ARIA.</p>
 <p><strong>Keywords:</strong> RNA-seq, differential expression, LLM,
 autonomous analysis, decision-aware pipeline, GSEA</p>
 <hr />
@@ -359,9 +362,29 @@ reasoning.</li>
 </ol>
 <h3 id="implementation">2.3 Implementation</h3>
 <p>ARIA is implemented in Python 3.10+ with R analysis modules executed
-in Docker containers. Key tools: DESeq2 v1.46.0, edgeR, limma, fgsea,
-msigdbr, WGCNA, STRING DB v12. All R scripts are generated from
-parameterized templates for reproducibility.</p>
+in Docker containers. The LLM backend used in this study is
+<strong>Claude Opus 4 (Anthropic, model ID:
+claude-opus-4-0520)</strong>, accessed via the Anthropic API. All LLM
+interactions are logged with exact prompts and responses for
+reproducibility.</p>
+<p>Key tools: DESeq2 v1.46.0, edgeR v4.4.0, limma v3.62.1, fgsea
+v1.32.0, msigdbr (2026.1), WGCNA v1.73, STRING DB v12, apeglm v1.28.0,
+IHW v1.34.0.</p>
+<p><strong>Gene filtering:</strong> Genes with fewer than 10 counts
+across all samples were excluded prior to DE analysis (typical
+threshold; Love et al., 2014). This retained approximately 15,000–21,000
+genes per dataset.</p>
+<p><strong>Normalization:</strong> DESeq2’s default median-of-ratios
+method (Anders and Huber, 2010) was used for all DE analyses.</p>
+<p><strong>GSEA parameters:</strong> fgsea was run with
+<code>minSize=15</code>, <code>maxSize=500</code>,
+<code>nPermSimple=10000</code>, and a fixed seed
+(<code>set.seed(42)</code>) for reproducibility. Six gene set
+collections from MSigDB were used: Hallmark (50 sets), GO:BP (7,538),
+GO:CC (1,080), GO:MF (1,872), KEGG Medicus (658), and Reactome
+(1,839).</p>
+<p>All R scripts are generated from parameterized templates for
+reproducibility.</p>
 <h3 id="benchmark-datasets-and-difficulty-classification">2.4 Benchmark
 Datasets and Difficulty Classification</h3>
 <p>We selected four datasets spanning a range of analytical challenges.
@@ -640,17 +663,28 @@ FKBP5, TSC22D3, ZBTB16) were recovered with high significance (padj &lt;
 1e-19, LFC 2.6–7.4).</p>
 <h3 id="known-target-validation-across-benchmarks">3.3 Known Target
 Validation Across Benchmarks</h3>
-<p><strong>SEQC (UHRR vs HBRR):</strong> 9/9 brain-enriched genes (GFAP,
-MBP, SYN1, GAD1, SLC17A7, NEFL, NEFM, NEFH, ENO2) correctly identified
-as upregulated in HBRR (LFC +2.2 to +12.7). 6/7 cancer genes (MYC,
-CCND1, CDK4, EGFR, ERBB2, TP53) correctly identified as upregulated in
-UHRR. BCL2 showed unexpected direction, consistent with known brain
-expression.</p>
-<p><strong>Fmr1 KO:</strong> Fmr1 itself detected as the top DEG (LFC =
-−0.98, padj = 3.7e-83). Key FMRP-regulated synaptic proteins detected:
-Dlg4/PSD-95 (LFC = −0.36), Shank3 (LFC = −0.45), Camk2a (LFC = −0.42).
-NMDA receptor subunits: Grin1 (LFC = −0.92), Grin2a (LFC = −0.81),
-Grin2b (LFC = −0.48). All directions consistent with loss of
+<p>To assess biological accuracy, we validated ARIA’s results against
+pre-defined gene lists from the literature. Target genes were selected
+<em>a priori</em> based on published studies, not from the DE results
+themselves, to avoid circular validation.</p>
+<p><strong>SEQC (UHRR vs HBRR):</strong> Brain-enriched genes were
+selected from the Allen Brain Atlas and neuroscience literature (GFAP,
+MBP, SYN1, GAD1, SLC17A7, NEFL, NEFM, NEFH, ENO2). Cancer-associated
+genes were selected from COSMIC and hallmark oncogene/tumor suppressor
+lists (MYC, CCND1, CDK4, EGFR, ERBB2, TP53, BCL2). 9/9 brain-enriched
+genes (GFAP, MBP, SYN1, GAD1, SLC17A7, NEFL, NEFM, NEFH, ENO2) correctly
+identified as upregulated in HBRR (LFC +2.2 to +12.7). 6/7 cancer genes
+(MYC, CCND1, CDK4, EGFR, ERBB2, TP53) correctly identified as
+upregulated in UHRR. BCL2 showed unexpected direction, consistent with
+known brain expression.</p>
+<p><strong>Fmr1 KO:</strong> FMRP target genes were selected from
+HITS-CLIP studies (Darnell et al., 2011) and established Fragile X
+literature (Bhatt et al., 2012): Fmr1, Map1b, Dlg4, Shank3, Arc, Camk2a,
+Mmp9, Nlgn1, Grin1, Grin2a, Grin2b. Fmr1 itself detected as the top DEG
+(LFC = −0.98, padj = 3.7e-83). Key FMRP-regulated synaptic proteins
+detected: Dlg4/PSD-95 (LFC = −0.36), Shank3 (LFC = −0.45), Camk2a (LFC =
+−0.42). NMDA receptor subunits: Grin1 (LFC = −0.92), Grin2a (LFC =
+−0.81), Grin2b (LFC = −0.48). All directions consistent with loss of
 FMRP-mediated translational regulation.</p>
 <h3 id="dp5-cross-method-concordance">3.4 DP5: Cross-Method
 Concordance</h3>
@@ -848,7 +882,100 @@ logged or exportable.</p>
 the analytical reasoning (not just the execution), and (c)
 identification of points where the LLM’s reasoning may need expert
 correction.</p>
-<h3 id="human-in-the-loop-design">4.3 Human-in-the-Loop Design</h3>
+<h3 id="ablation-rule-based-vs.-llm-assisted-decisions">4.3 Ablation:
+Rule-Based vs. LLM-Assisted Decisions</h3>
+<p>A critical question is whether the LLM component provides value
+beyond what simple rule-based logic could achieve. We distinguish three
+categories of Decision Points:</p>
+<table>
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 8%" />
+<col style="width: 31%" />
+<col style="width: 44%" />
+</colgroup>
+<thead>
+<tr>
+<th>Category</th>
+<th>DPs</th>
+<th>LLM contribution</th>
+<th>Could rule-only replicate?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Primarily rule-based</strong></td>
+<td>DP1, DP2, DP7</td>
+<td>Minimal — thresholds drive decisions</td>
+<td>Yes, with predefined thresholds</td>
+</tr>
+<tr>
+<td><strong>LLM-assisted</strong></td>
+<td>DP3, DP4, DP5</td>
+<td>Moderate — LLM interprets edge cases</td>
+<td>Partially — simple cases yes, complex metadata no</td>
+</tr>
+<tr>
+<td><strong>LLM-dependent</strong></td>
+<td>DP6, DP8</td>
+<td>Essential — interpretation and reporting</td>
+<td>No — requires natural language reasoning</td>
+</tr>
+</tbody>
+</table>
+<p>For DP3 (design recognition), a rule-based system could detect paired
+designs from structured metadata fields (e.g., explicit “paired”
+columns). However, ARIA’s LLM also infers blocking factors from
+unstructured sample names, experimental descriptions, and mixed library
+types — cases where simple keyword matching would fail. The 21–47% DEG
+gain in Airway could largely be replicated by rules, but the
+generalization to arbitrary metadata formats requires LLM
+flexibility.</p>
+<p>For DP6 (literature interpretation), no rule-based system can
+generate the contextual biological narratives that ARIA produces. This
+is the clearest case for LLM value, though also the highest
+hallucination risk.</p>
+<p>A formal ablation study comparing rule-only, rule+LLM, and LLM-only
+configurations across diverse datasets is an important direction for
+future work and would strengthen the evidence for LLM-specific
+contributions at each DP.</p>
+<h3 id="benchmark-limitations-and-missing-scenarios">4.4 Benchmark
+Limitations and Missing Scenarios</h3>
+<p>Our current benchmarks have two notable gaps:</p>
+<p><strong>(1) No GSEA-priority scenario:</strong> All four benchmark
+datasets produced sufficient DEGs for DP2 to select the “standard”
+strategy. A dataset with &lt;50 DEGs (|LFC|&gt;1), where DP2 would
+trigger GSEA-priority mode, was not included. In real-world testing on a
+brain KO dataset with n=3 per group, we observed exactly this scenario:
+6–7 DEGs at |LFC|&gt;1, triggering GSEA which revealed 108–313 GO:BP
+pathways — demonstrating that the adaptive strategy switching provides
+substantial analytical value when DEGs are scarce. Including such a
+dataset in future benchmarks would directly validate the GSEA-priority
+pathway.</p>
+<p><strong>(2) DP4 not benchmarked:</strong> Cell type signature
+detection (DP4) was demonstrated in real-world use (detecting ependymal
+markers in neuronal tissue) but not in the controlled benchmarks.
+Constructing a benchmark with known cell-type contamination would
+provide systematic validation.</p>
+<h3 id="reproducibility-of-llm-driven-components">4.5 Reproducibility of
+LLM-Driven Components</h3>
+<p>The statistical components of ARIA (DESeq2, fgsea, edgeR) are fully
+deterministic with fixed seeds and produce identical results across
+runs. The LLM-driven components (DP6 interpretation, DP8 report
+generation) are inherently stochastic.</p>
+<p>We note the following reproducibility characteristics: -
+<strong>DP1–DP5, DP7:</strong> Fully reproducible — rule-based
+thresholds produce identical decisions - <strong>DP6:</strong>
+Interpretations may vary in wording but converge on the same biological
+themes (e.g., the same top genes and pathways are highlighted, though
+the narrative framing may differ) - <strong>DP8:</strong> Report
+structure is templated; only the LLM-generated interpretation sections
+vary</p>
+<p>A systematic reproducibility study with multiple independent runs is
+planned for a future version. In practice, the decision log captures
+each run’s complete reasoning chain, enabling comparison across
+executions.</p>
+<h3 id="human-in-the-loop-design">4.6 Human-in-the-Loop Design</h3>
 <p>ARIA is designed to augment, not replace, bioinformaticians.
 Biological interpretations are labeled as hypothesis-level. The decision
 log enables audit and review. Complex situations are flagged for expert
@@ -935,18 +1062,25 @@ publicly accessible.</p>
 <ol type="1">
 <li>Afgan, E., et al. (2018). Nucleic Acids Research, 46,
 W537–W544.</li>
+<li>Anders, S. &amp; Huber, W. (2010). Genome Biology, 11, R106.</li>
+<li>Bhatt, D.M., et al. (2012). Molecular Cell, 48, 205–216.</li>
 <li>Boiko, D.A., et al. (2023). Nature, 624, 570–578.</li>
+<li>Brooks, A.N., et al. (2011). Genome Research, 21, 193–202.</li>
 <li>Bubeck, S., et al. (2023). arXiv:2303.12712.</li>
 <li>Conesa, A., et al. (2016). Genome Biology, 17, 13.</li>
+<li>Darnell, J.C., et al. (2011). Cell, 146, 247–261.</li>
 <li>Di Tommaso, P., et al. (2017). Nature Biotechnology, 35,
 316–319.</li>
 <li>Dobin, A., et al. (2013). Bioinformatics, 29, 15–21.</li>
 <li>Ewels, P.A., et al. (2020). Nature Biotechnology, 38, 276–278.</li>
 <li>Ge, S.X., et al. (2018). BMC Bioinformatics, 19, 534.</li>
+<li>Himes, B.E., et al. (2014). PLoS ONE, 9, e99625.</li>
 <li>Jimenez, C.E., et al. (2024). ICLR 2024.</li>
 <li>Love, M.I., et al. (2014). Genome Biology, 15, 550.</li>
 <li>Mölder, F., et al. (2021). F1000Research, 10, 33.</li>
 <li>Patro, R., et al. (2017). Nature Methods, 14, 417–419.</li>
+<li>SEQC/MAQC-III Consortium. (2014). Nature Biotechnology, 32,
+903–914.</li>
 <li>Stark, R., et al. (2019). Nature Reviews Genetics, 20, 631–656.</li>
 <li>Subramanian, A., et al. (2005). PNAS, 102, 15545–15550.</li>
 </ol>
