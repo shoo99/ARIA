@@ -244,7 +244,7 @@ ARIA's central contribution is the reasoning layer that adaptively connects esta
 
 **(3) What alternatives were considered:** Where applicable, the log records alternative actions that were evaluated and rejected, with reasons. For example: *"Multi-factor model considered but not applied — single tissue analysis, no blocking factor detected."*
 
-Existing tools do not provide this level of transparency. **nf-core/rnaseq** logs tool versions and execution parameters but does not record analytical reasoning — it follows a fixed path with no decisions to document. **Galaxy** records the history of tool invocations with parameters, but the *why* behind parameter choices is not captured, as these are made by the user through the GUI. **iDEP** provides interactive visualizations that implicitly guide user decisions, but the decision process itself is not logged or exportable.
+Existing tools do not provide this level of transparency. **nf-core/rnaseq** logs tool versions and execution parameters but does not record analytical reasoning — it follows a fixed path with no decisions to document. **Galaxy** records the history of tool invocations with parameters, but the *why* behind parameter choices is not captured, as these are made by the user through the GUI. **iDEP** provides interactive visualizations that implicitly guide user decisions, but the decision process itself is not logged or exportable. Regarding reproducibility, iDEP is a web-only platform without Docker or container support, meaning analyses depend on the server-side software versions at the time of execution, limiting computational reproducibility (hence the △ rating in the comparison table).
 
 ARIA's decision log is saved as a structured JSON file (`execution_log.json`) alongside every analysis, enabling: (a) post-hoc audit by reviewers or collaborators, (b) reproducibility of the analytical reasoning (not just the execution), and (c) identification of points where the LLM's reasoning may need expert correction.
 
@@ -287,9 +287,9 @@ A systematic reproducibility study with multiple independent runs is planned for
 
 ARIA is designed to augment, not replace, bioinformaticians. Biological interpretations are labeled as hypothesis-level. The decision log enables audit and review. Complex situations are flagged for expert judgment.
 
-### 4.4 Limitations
+### 4.7 Limitations
 
-#### 4.4.1 LLM Hallucination Risk and Mitigation
+#### 4.7.1 LLM Hallucination Risk and Mitigation
 
 LLMs can generate plausible but factually incorrect statements — a phenomenon known as "hallucination." In ARIA, this risk is most acute at DP6 (literature-based interpretation), where the LLM may: (a) cite non-existent papers, (b) attribute incorrect functions to genes, or (c) fabricate mechanistic connections.
 
@@ -305,23 +305,23 @@ We implement four mitigation strategies:
 
 **Observed hallucination in practice:** During real-world testing, we observed that the LLM occasionally described gene functions with minor inaccuracies (e.g., attributing a protein to the wrong subcellular compartment) and once generated a reference that could not be verified. These instances were caught during expert review, reinforcing the necessity of the human-in-the-loop design.
 
-#### 4.4.2 Statistical Power
+#### 4.7.2 Statistical Power
 
 Statistical power is constrained by sample size, not by the analytical method. ARIA transparently communicates this limitation and adapts its strategy (e.g., switching to GSEA), but it cannot overcome fundamental statistical constraints inherent to small-n experiments.
 
-#### 4.4.3 Cell Type Confounding
+#### 4.7.3 Cell Type Confounding
 
 Bulk RNA-seq cannot distinguish gene expression changes within a cell type from changes in cell type composition. ARIA's marker-based deconvolution (DP4) provides an approximate assessment, but single-cell or single-nucleus RNA-seq is required for definitive cell-type-resolved analysis.
 
-#### 4.4.4 API Cost and Reproducibility
+#### 4.7.4 API Cost and Reproducibility
 
 ARIA requires LLM API access (~$2–10 per analysis). LLM outputs are inherently stochastic; while statistical analyses use fixed seeds, the interpretive component (DP6) may vary slightly across runs. The decision log mitigates this by recording the exact reasoning for each run.
 
-#### 4.4.5 Scope
+#### 4.7.5 Scope
 
 The current version of ARIA is designed for bulk RNA-seq two-group comparisons. Extensions to time-series designs, single-cell RNA-seq, and multi-omics integration are planned but not yet implemented.
 
-### 4.5 Future Directions
+### 4.8 Future Directions
 
 Extensions to single-cell RNA-seq, multi-omics integration, time-series designs, and domain-specific fine-tuned LLMs are planned.
 

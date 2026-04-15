@@ -875,7 +875,11 @@ history of tool invocations with parameters, but the <em>why</em> behind
 parameter choices is not captured, as these are made by the user through
 the GUI. <strong>iDEP</strong> provides interactive visualizations that
 implicitly guide user decisions, but the decision process itself is not
-logged or exportable.</p>
+logged or exportable. Regarding reproducibility, iDEP is a web-only
+platform without Docker or container support, meaning analyses depend on
+the server-side software versions at the time of execution, limiting
+computational reproducibility (hence the △ rating in the comparison
+table).</p>
 <p>ARIA’s decision log is saved as a structured JSON file
 (<code>execution_log.json</code>) alongside every analysis, enabling:
 (a) post-hoc audit by reviewers or collaborators, (b) reproducibility of
@@ -980,8 +984,8 @@ executions.</p>
 Biological interpretations are labeled as hypothesis-level. The decision
 log enables audit and review. Complex situations are flagged for expert
 judgment.</p>
-<h3 id="limitations">4.4 Limitations</h3>
-<h4 id="llm-hallucination-risk-and-mitigation">4.4.1 LLM Hallucination
+<h3 id="limitations">4.7 Limitations</h3>
+<h4 id="llm-hallucination-risk-and-mitigation">4.7.1 LLM Hallucination
 Risk and Mitigation</h4>
 <p>LLMs can generate plausible but factually incorrect statements — a
 phenomenon known as “hallucination.” In ARIA, this risk is most acute at
@@ -1011,28 +1015,28 @@ functions with minor inaccuracies (e.g., attributing a protein to the
 wrong subcellular compartment) and once generated a reference that could
 not be verified. These instances were caught during expert review,
 reinforcing the necessity of the human-in-the-loop design.</p>
-<h4 id="statistical-power">4.4.2 Statistical Power</h4>
+<h4 id="statistical-power">4.7.2 Statistical Power</h4>
 <p>Statistical power is constrained by sample size, not by the
 analytical method. ARIA transparently communicates this limitation and
 adapts its strategy (e.g., switching to GSEA), but it cannot overcome
 fundamental statistical constraints inherent to small-n experiments.</p>
-<h4 id="cell-type-confounding">4.4.3 Cell Type Confounding</h4>
+<h4 id="cell-type-confounding">4.7.3 Cell Type Confounding</h4>
 <p>Bulk RNA-seq cannot distinguish gene expression changes within a cell
 type from changes in cell type composition. ARIA’s marker-based
 deconvolution (DP4) provides an approximate assessment, but single-cell
 or single-nucleus RNA-seq is required for definitive cell-type-resolved
 analysis.</p>
-<h4 id="api-cost-and-reproducibility">4.4.4 API Cost and
+<h4 id="api-cost-and-reproducibility">4.7.4 API Cost and
 Reproducibility</h4>
 <p>ARIA requires LLM API access (~$2–10 per analysis). LLM outputs are
 inherently stochastic; while statistical analyses use fixed seeds, the
 interpretive component (DP6) may vary slightly across runs. The decision
 log mitigates this by recording the exact reasoning for each run.</p>
-<h4 id="scope">4.4.5 Scope</h4>
+<h4 id="scope">4.7.5 Scope</h4>
 <p>The current version of ARIA is designed for bulk RNA-seq two-group
 comparisons. Extensions to time-series designs, single-cell RNA-seq, and
 multi-omics integration are planned but not yet implemented.</p>
-<h3 id="future-directions">4.5 Future Directions</h3>
+<h3 id="future-directions">4.8 Future Directions</h3>
 <p>Extensions to single-cell RNA-seq, multi-omics integration,
 time-series designs, and domain-specific fine-tuned LLMs are
 planned.</p>
