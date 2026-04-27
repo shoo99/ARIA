@@ -2,8 +2,11 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![DOI](https://img.shields.io/badge/DOI-10.21203%2Frs.3.rs--9500973%2Fv1-blue)](https://doi.org/10.21203/rs.3.rs-9500973/v1)
 
 **An LLM-powered autonomous framework for transcriptome analysis with decision-aware workflow orchestration.**
+
+> 📄 **Preprint:** Kang B. (2026). *ARIA: Adaptive Reasoning for Integrated Analysis.* Research Square. [doi:10.21203/rs.3.rs-9500973/v1](https://doi.org/10.21203/rs.3.rs-9500973/v1)
 
 ARIA goes beyond traditional fixed pipelines by using a Large Language Model as a reasoning engine that evaluates intermediate results and adaptively selects the next analysis step — mimicking how an experienced bioinformatician thinks.
 
@@ -86,15 +89,22 @@ ARIA has been evaluated on 4 public RNA-seq datasets spanning different difficul
 
 ## Citation
 
-If you use ARIA in your research, please cite:
+If you use ARIA in your research, please cite our preprint:
+
+> Kang B. (2026). **ARIA: Adaptive Reasoning for Integrated Analysis — An LLM-Powered Framework for Autonomous Transcriptome Analysis with Decision-Aware Workflow Orchestration.** *Research Square.* [https://doi.org/10.21203/rs.3.rs-9500973/v1](https://doi.org/10.21203/rs.3.rs-9500973/v1)
+
+**BibTeX:**
 
 ```bibtex
 @article{kang2026aria,
-  title={ARIA: Adaptive Reasoning for Integrated Analysis — An LLM-Powered Framework for Autonomous Transcriptome Analysis with Decision-Aware Workflow Orchestration},
-  author={Kang, Byeongsoo},
-  journal={bioRxiv},
-  year={2026},
-  doi={pending}
+  title   = {ARIA: Adaptive Reasoning for Integrated Analysis --- An LLM-Powered Framework for Autonomous Transcriptome Analysis with Decision-Aware Workflow Orchestration},
+  author  = {Kang, Byeongsoo},
+  journal = {Research Square},
+  year    = {2026},
+  month   = {April},
+  doi     = {10.21203/rs.3.rs-9500973/v1},
+  url     = {https://doi.org/10.21203/rs.3.rs-9500973/v1},
+  note    = {Preprint}
 }
 ```
 

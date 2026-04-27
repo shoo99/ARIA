@@ -1,0 +1,37 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+type: software
+title: "ARIA: Adaptive Reasoning for Integrated Analysis"
+authors:
+  - family-names: "Kang"
+    given-names: "Byeongsoo"
+    email: "shoo99@gmail.com"
+    affiliation: "SYSOFT"
+    orcid: "https://orcid.org/0009-0007-2324-2351"
+version: "0.1.0"
+date-released: "2026-04-21"
+license: MIT
+repository-code: "https://github.com/shoo99/ARIA"
+keywords:
+  - RNA-seq
+  - transcriptomics
+  - bioinformatics
+  - large language models
+  - differential expression
+abstract: "ARIA is an LLM-powered framework for autonomous RNA-seq transcriptome analysis with decision-aware workflow orchestration."
+preferred-citation:
+  type: article
+  title: "ARIA: Adaptive Reasoning for Integrated Analysis — An LLM-Powered Framework for Autonomous Transcriptome Analysis with Decision-Aware Workflow Orchestration"
+  authors:
+    - family-names: "Kang"
+      given-names: "Byeongsoo"
+      orcid: "https://orcid.org/0009-0007-2324-2351"
+      affiliation: "SYSOFT"
+  journal: "Research Square"
+  year: 2026
+  month: 4
+  doi: "10.21203/rs.3.rs-9500973/v1"
+  url: "https://doi.org/10.21203/rs.3.rs-9500973/v1"
+  identifiers:
+    - type: doi
+      value: "10.21203/rs.3.rs-9500973/v1"

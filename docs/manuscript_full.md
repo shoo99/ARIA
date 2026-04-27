@@ -2,7 +2,7 @@
 
 **An LLM-Powered Framework for Autonomous Transcriptome Analysis with Decision-Aware Workflow Orchestration**
 
-**Byeongsoo Kang**¹*
+**Byeongsoo Kang**¹* (ORCID: [0009-0007-2324-2351](https://orcid.org/0009-0007-2324-2351))
 
 ¹ SYSOFT, Republic of Korea
 
